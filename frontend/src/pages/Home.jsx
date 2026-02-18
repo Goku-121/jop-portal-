@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { Link } from "react-router-dom";
-
+import "../css/Home.css";
 export default function Home() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,8 +9,8 @@ export default function Home() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const { data } = await api.get("/jobs");
-        setJobs(data);
+      const { data } = await api.get("/jobs", { params: { limit: 6, page: 1 } });
+setJobs(data.items || []);
       } catch (err) {
         console.log(err);
       } finally {
@@ -23,13 +23,14 @@ export default function Home() {
   return (
     <div className="container mt-5">
       {/* Hero Section */}
-      <div className="text-center p-5 bg-light rounded mb-5">
-        <h1>Welcome to Bangla Skill Jobs</h1>
-        <p className="lead">Find jobs or hire skilled workers easily!</p>
-        <Link to="/jobs" className="btn btn-primary btn-lg mt-3">
-          Browse Jobs
-        </Link>
-      </div>
+  <div className="hero-section text-center">
+  <h1>Welcome to Bangla Skill Jobs</h1>
+  <p className="lead">Find jobs or hire skilled workers easily!</p>
+  <Link to="/jobs" className="btn btn-primary">
+    Browse Jobs
+  </Link>
+</div>
+      
 
       {/* Featured Jobs */}
       <h3 className="mb-3">Latest Jobs</h3>

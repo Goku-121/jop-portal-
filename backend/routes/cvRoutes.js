@@ -17,18 +17,18 @@ router.post(
 
     let cv = await CV.findOne({ user: req.user._id });
 
-    if (cv) {
-      cv.cvUrl = req.file.path;
-      await cv.save();
-      return res.json(cv);
-    }
+   if (cv) {
+  cv.cvUrl = `/uploads/${req.file.filename}`;
+  await cv.save();
+  return res.json(cv);
+}
 
-    cv = await CV.create({
-      user: req.user._id,
-      cvUrl: req.file.path,
-    });
+cv = await CV.create({
+  user: req.user._id,
+  cvUrl: `/uploads/${req.file.filename}`,
+});
 
-    res.json(cv);
+res.json(cv);
   }
 );
 

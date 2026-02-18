@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import api from "../services/api";
-import { useAuth } from "../contexts/AuthContext";
+import { useSelector } from "react-redux";
 
 export default function PostJob() {
-  const { user } = useAuth();
+  const user = useSelector((s) => s.auth.user);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");

@@ -1,0 +1,17 @@
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --radius: 1rem;
+  --shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.card-modern {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: all 0.25s ease;
+}
+
+.card-modern:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+}

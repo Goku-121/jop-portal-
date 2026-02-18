@@ -1,48 +1,48 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
-import { useAuth } from "../contexts/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../store/authSlice";
 
 export default function WorkerProfile() {
-  const { user, login } = useAuth();
+  const user = useSelector((s) => s.auth.user);
+  const dispatch = useDispatch();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [existingCV, setExistingCV] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Load profile + CV
+  const [apps, setApps] = useState([]);
+
   useEffect(() => {
     if (!user) return;
 
     setName(user.name || "");
     setEmail(user.email || "");
 
-    const fetchCV = async () => {
-      try {
-        const { data } = await api.get("/cv/me");
-        if (data?.cvUrl) setExistingCV(data.cvUrl);
-      } catch (err) {
-        console.error("Failed to fetch CV");
-      }
-    };
-
-    fetchCV();
+    api
+      .get("/cv/me")
+      .then((r) => setExistingCV(r.data?.cvUrl || null))
+      .catch(() => {});
   }, [user]);
 
-  // Update profile
+  useEffect(() => {
+    if (!user) return;
+
+    api
+      .get("/applications")
+      .then((r) => setApps(r.data || []))
+      .catch(() => setApps([]));
+  }, [user]);
+
   const handleUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const { data } = await api.put("/users/me", { name, email });
 
-      // Update auth context + localStorage
-      login({
-        ...user,
-        name: data.name,
-        email: data.email,
-      });
+      // keep token/adminId etc from old user
+      dispatch(setUser({ ...user, ...data }));
 
       alert("Profile updated successfully!");
     } catch (err) {
@@ -52,9 +52,8 @@ export default function WorkerProfile() {
     }
   };
 
-  // Upload CV
   const handleCVUpload = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
     const formData = new FormData();
@@ -69,13 +68,12 @@ export default function WorkerProfile() {
     }
   };
 
-  // Guard
   if (!user || user.role !== "worker") {
     return <p className="text-center mt-5">Workers only</p>;
   }
 
   return (
-    <div className="col-md-6 offset-md-3 mt-5">
+    <div className="container mt-4">
       <h2 className="mb-4">Worker Profile</h2>
 
       <form onSubmit={handleUpdate}>
@@ -96,11 +94,7 @@ export default function WorkerProfile() {
           required
         />
 
-        <button
-          className="btn btn-primary w-100"
-          type="submit"
-          disabled={loading}
-        >
+        <button className="btn btn-primary w-100" disabled={loading}>
           {loading ? "Updating..." : "Update Profile"}
         </button>
       </form>
@@ -116,16 +110,31 @@ export default function WorkerProfile() {
       />
 
       {existingCV && (
-        <div className="mt-3">
-          <a
-            href={`http://localhost:5000/${existingCV}`}
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-sm btn-secondary"
-          >
-            View CV
-          </a>
-        </div>
+        <a
+          href={`http://localhost:5000${existingCV}`}
+          target="_blank"
+          rel="noreferrer"
+          className="btn btn-sm btn-secondary"
+        >
+          View CV
+        </a>
+      )}
+
+      <hr />
+
+      <h4 className="mb-3">My Applications</h4>
+
+      {apps.length === 0 ? (
+        <p className="text-muted">No applications yet.</p>
+      ) : (
+        apps.map((a) => (
+          <div key={a._id} className="card p-2 mb-2">
+            <div className="d-flex justify-content-between align-items-center">
+              <strong>{a.job?.title || "Job Deleted"}</strong>
+              <span className="badge bg-secondary">{a.status}</span>
+            </div>
+          </div>
+        ))
       )}
     </div>
   );

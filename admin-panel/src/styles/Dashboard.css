@@ -1,0 +1,42 @@
+/* src/styles/Dashboard.css - no @apply for Tailwind base classes */
+
+/* Custom hover overlay */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  background: linear-gradient(to bottom right, transparent, rgba(0,0,0,0.03));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+}
+
+/* Icon hover scale */
+.stat-card-icon {
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-card-icon {
+  transform: scale(1.1);
+}
+
+/* No pointer events for non-link cards */
+.stat-card-no-link {
+  pointer-events: none;
+  cursor: default;
+}

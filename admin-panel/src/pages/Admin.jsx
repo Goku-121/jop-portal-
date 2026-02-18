@@ -1,5 +1,5 @@
-// src/pages/Admin.jsx (or wherever your admin route lives)
-import { Link } from 'react-router-dom'; // assuming you're using React Router
+
+import { Link } from 'react-router-dom'; 
 
 export default function Admin() {
   // These would come from API/state in a real app
@@ -9,9 +9,9 @@ export default function Admin() {
     pendingApprovals: 47,
     registeredCompanies: 89,
     newApplicationsThisWeek: 63,
-  };
+};
 
-  return (
+return (
     <div className="min-h-screen bg-gray-100 p-6">
       {/* Header */}
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">

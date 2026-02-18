@@ -1,35 +1,37 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../services/api";
-import { useAuth } from "../contexts/AuthContext";
+import { useDispatch, useSelector } from "react-redux";
+import { loginThunk } from "../store/authSlice";
 
 export default function Login() {
-  const [identifier, setIdentifier] = useState(""); // email or adminId
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const dispatch = useDispatch();
+
+  const { user, loading, error } = useSelector((s) => s.auth);
+
+  useEffect(() => {
+    if (!user) return;
+    // if (user.role === "admin") navigate("/admin/dashboard");
+    else if (user.role === "worker") navigate("/profile");
+    else if (user.role === "company") navigate("/post-job");
+    else navigate("/");
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!identifier || !password) return alert("All fields are required");
-
-    try {
-      const { data } = await api.post("/auth/login", { identifier, password });
-      login(data);
-
-      // Redirect based on role
-      if (data.role === "admin") navigate("/admin/dashboard");
-      else if (data.role === "worker") navigate("/profile");
-      else if (data.role === "company") navigate("/post-job");
-      else navigate("/");
-    } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
-    }
+    dispatch(loginThunk({ identifier, password }));
   };
 
   return (
     <div className="col-md-6 offset-md-3 mt-5">
       <h2 className="mb-4">Login</h2>
+
+      {error && <div className="alert alert-danger">{error}</div>}
+
       <form onSubmit={handleSubmit}>
         <input
           className="form-control mb-2"
@@ -46,8 +48,8 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button className="btn btn-primary w-100" type="submit">
-          Login
+        <button className="btn btn-primary w-100" type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>

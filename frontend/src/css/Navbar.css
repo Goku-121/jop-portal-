@@ -1,0 +1,194 @@
+/* Main navbar container */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.4s ease;
+  padding: 0.9rem 0;
+}
+
+/* Navbar when page is scrolled */
+.navbar.scrolled {
+  background: linear-gradient(135deg, #0a58ca 0%, #084298 100%) !important;
+  padding: 0.75rem 0;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Brand / logo */
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.55rem;
+  color: white !important;
+  letter-spacing: -0.5px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Brand hover effect */
+.navbar-brand:hover {
+  color: #e3f2fd !important;
+  transform: translateY(-1px);
+}
+
+/* Individual navigation links */
+.nav-link {
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-weight: 500;
+  font-size: 1.03rem;
+  padding: 0.65rem 1.15rem !important;
+  margin: 0 0.2rem;
+  border-radius: 8px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Hover and active state for nav links */
+.nav-link:hover,
+.nav-link.active {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Animated underline effect on hover/active */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2.5px;
+  bottom: 8px;
+  left: 50%;
+  background-color: white;
+  border-radius: 2px;
+  transition: all 0.35s cubic-bezier(0.19, 1, 0.22, 1);
+  transform: translateX(-50%);
+}
+
+/* Underline animation trigger */
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 45%;
+}
+
+/* Hamburger / toggler button */
+.navbar-toggler {
+  border: none;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+/* Remove focus outline on toggler */
+.navbar-toggler:focus {
+  box-shadow: none;
+}
+
+/* Custom toggler icon color & style */
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.95)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.5' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  transition: all 0.4s ease;
+}
+
+/* Rotate icon when menu is open */
+.navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
+  transform: rotate(90deg);
+}
+
+/* Collapse container - controls slide animation */
+.navbar-collapse {
+  transition: all 0.4s ease-in-out;
+  overflow: hidden;
+}
+
+/* Animation when mobile menu opens */
+.navbar-collapse.show {
+  animation: slideDown 0.45s ease forwards;
+}
+
+/* Slide down keyframe animation */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Right side navigation group adjustments */
+.navbar-nav:last-child .nav-link {
+  padding: 0.65rem 1.1rem !important;
+}
+
+/* Logout button styling */
+.btn-danger {
+  font-weight: 600;
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* Logout button hover effect */
+.btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(220, 53, 69, 0.45);
+}
+
+/* "Hi, Username" text styling */
+.nav-link span {
+  color: #e3f2fd;
+  font-weight: 500;
+}
+
+/* ────────────────────────────────────────────────
+   RESPONSIVE STYLES
+   ──────────────────────────────────────────────── */
+
+/* Tablet & below (mobile menu behavior) */
+@media (max-width: 991.98px) {
+  .navbar {
+    padding: 0.9rem 0;
+  }
+
+  .navbar-brand {
+    font-size: 1.45rem;
+  }
+
+  .nav-link {
+    padding: 0.9rem 1.4rem !important;
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  /* Hide underline effect on mobile */
+  .nav-link::after {
+    display: none;
+  }
+
+  /* Add separator for right-side items on mobile */
+  .navbar-nav:last-child {
+    margin-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 0.5rem;
+  }
+
+  .btn-danger {
+    width: 100%;
+    margin: 0.5rem 1.4rem;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 576px) {
+  .navbar-brand {
+    font-size: 1.35rem;
+  }
+
+  .navbar {
+    padding: 0.8rem 0;
+  }
+}

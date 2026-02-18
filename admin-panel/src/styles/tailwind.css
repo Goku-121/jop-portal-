@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* Optional: custom base styles / overrides */
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 min-h-screen antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold text-gray-800;
+  }
+}
+
+/* Custom reusable classes (optional) */
+.card-modern {
+  @apply bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 overflow-hidden;
+}

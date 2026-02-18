@@ -7,50 +7,43 @@ import WorkerProfile from "./pages/WorkerProfile";
 import PostJob from "./pages/PostJob";
 import JobList from "./pages/JobList";
 import JobDetail from "./pages/JobDetail";
+import CompanyDashboard from "./pages/CompanyDashboard";
+// import AdminLogin from "./pages/AdminLogin";
+// import AdminRegister from "./pages/AdminRegister";
+// import AdminDashboard from "./pages/Admin";
 
-import AdminLogin from "./pages/AdminLogin";
-import AdminRegister from "./pages/AdminRegister"; // Don't forget to import this
-import AdminDashboard from "./pages/Admin";
-
-import AdminRoute from "./routes/AdminRoute";
-import AdminLayout from "./layouts/AdminLayout";
-
-import { AuthProvider } from "./contexts/AuthContext";
+//  import AdminRoute from "./routes/AdminRoute";
+// import AdminLayout from "./layouts/AdminLayout";
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        {/* Navbar only for normal users */}
-        <Navbar />
+    <Router>
+      <Navbar />
 
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-          {/* Worker Routes */}
-          <Route path="/profile" element={<WorkerProfile />} />
-          <Route path="/jobs" element={<JobList />} />
-          <Route path="/jobs/:id" element={<JobDetail />} />
+        <Route path="/profile" element={<WorkerProfile />} />
+        <Route path="/jobs" element={<JobList />} />
+        <Route path="/jobs/:id" element={<JobDetail />} />
 
-          {/* Company Routes */}
-          <Route path="/post-job" element={<PostJob />} />
+        <Route path="/post-job" element={<PostJob />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin-login" element={<AdminLogin />} />
-          <Route path="/admin-register" element={<AdminRegister />} />
+        {/* <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/admin-register" element={<AdminRegister />} /> */}
 
-          {/* Protected Admin Dashboard */}
-          <Route element={<AdminRoute />}>
-            <Route element={<AdminLayout />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            </Route>
-          </Route>
-        </Routes>
-      </Router>
-    </AuthProvider>
+        {/* <Route element={<AdminRoute />}> */}
+          {/* <Route element={<AdminLayout />}> */}
+            {/* <Route path="/admin/dashboard" element={<AdminDashboard />} /> */}
+        {/* </Route> */}
+
+
+        <Route path="/company/dashboard" element={<CompanyDashboard />} />
+
+      </Routes>
+    </Router>
   );
 }
 
