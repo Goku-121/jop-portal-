@@ -10,7 +10,6 @@ export default function CompanyDashboard() {
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // only company can access
   useEffect(() => {
     if (!user) return navigate("/login");
     if (user.role !== "company") return navigate("/");
@@ -46,19 +45,25 @@ export default function CompanyDashboard() {
   if (!user) return null;
 
   return (
-    <div className="container mt-4">
+    <div className="container page-wrap">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h3 className="m-0">Company Dashboard</h3>
-        <Link className="btn btn-primary" to="/post-job">
-          + Post Job
+        <h3 className="m-0 fw-bold">
+          <i className="fa-solid fa-building me-2 text-primary"></i>
+          Company Dashboard
+        </h3>
+        <Link className="btn btn-pro" to="/post-job">
+          <i className="fa-solid fa-square-plus me-2"></i>Post Job
         </Link>
       </div>
 
-      <div className="card shadow-sm">
+      <div className="card card-pro">
         <div className="card-body">
-          <h5 className="mb-3">Applications</h5>
+          <h5 className="mb-3 fw-bold">
+            <i className="fa-solid fa-file-lines me-2 text-primary"></i>
+            Applications
+          </h5>
 
-          {loading && <p>Loading applications...</p>}
+          {loading && <p className="text-muted2 mb-0">Loading applications...</p>}
 
           {!loading && apps.length === 0 && (
             <div className="alert alert-info mb-0">No applications yet for your jobs.</div>
@@ -66,7 +71,7 @@ export default function CompanyDashboard() {
 
           {!loading && apps.length > 0 && (
             <div className="table-responsive">
-              <table className="table table-bordered align-middle">
+              <table className="table table-pro table-hover table-bordered align-middle">
                 <thead>
                   <tr>
                     <th>Job</th>
@@ -83,23 +88,12 @@ export default function CompanyDashboard() {
                       <td>{a.job?.title || "Job Deleted"}</td>
 
                       <td>
-                        {a.applicant?.name || "N/A"}
-                        <div className="text-muted small">{a.applicant?.email || ""}</div>
+                        <div className="fw-bold">{a.applicant?.name || "N/A"}</div>
+                        <div className="text-muted2 small">{a.applicant?.email || ""}</div>
                       </td>
 
-                      {/* ✅ Status + Accept/Reject + Lock */}
                       <td>
-                        <span
-                          className={`badge me-2 ${
-                            a.status === "accepted"
-                              ? "bg-success"
-                              : a.status === "rejected"
-                              ? "bg-danger"
-                              : "bg-secondary"
-                          }`}
-                        >
-                          {a.status}
-                        </span>
+                        <span className={`badge-soft ${a.status} me-2`}>{a.status}</span>
 
                         {a.status === "pending" ? (
                           <>
@@ -107,19 +101,19 @@ export default function CompanyDashboard() {
                               className="btn btn-sm btn-success me-2"
                               onClick={() => updateStatus(a._id, "accepted")}
                             >
-                              Accept
+                              <i className="fa-solid fa-check me-1"></i>Accept
                             </button>
 
                             <button
                               className="btn btn-sm btn-danger"
                               onClick={() => updateStatus(a._id, "rejected")}
                             >
-                              Reject
+                              <i className="fa-solid fa-xmark me-1"></i>Reject
                             </button>
                           </>
                         ) : (
-                          <span className="text-muted ms-2">
-                            <i className="bi bi-lock-fill"></i> Locked
+                          <span className="text-muted2 ms-2">
+                            <i className="fa-solid fa-lock me-1"></i>Locked
                           </span>
                         )}
                       </td>
@@ -132,7 +126,7 @@ export default function CompanyDashboard() {
                             target="_blank"
                             rel="noreferrer"
                           >
-                            View CV
+                            <i className="fa-solid fa-file-pdf me-2"></i>View CV
                           </a>
                         ) : (
                           "-"

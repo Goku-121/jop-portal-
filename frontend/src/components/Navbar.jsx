@@ -11,9 +11,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
-  useEffect(() => {
-    setOpen(false);
-  }, [location.pathname]);
+  useEffect(() => setOpen(false), [location.pathname]);
 
   const closeMenu = () => setOpen(false);
 
@@ -23,10 +21,13 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav className="navbar navbar-expand-lg navbar-dark navbar-pro">
       <div className="container">
         <Link className="navbar-brand" to="/" onClick={closeMenu}>
-          BanglaSkillJobs
+          <span className="brand-logo">
+            <i className="fa-solid fa-briefcase"></i>
+          </span>
+          Bangla Job Portal
         </Link>
 
         <button
@@ -44,44 +45,38 @@ export default function Navbar() {
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <Link className="nav-link" to="/" onClick={closeMenu}>
-                Home
+                <i className="fa-solid fa-house me-2"></i>Home
               </Link>
             </li>
-          {user?.role === "company" && (
-           <>
-              <li className="nav-item">
-               <Link className="nav-link" to="/company/dashboard" onClick={closeMenu}>
-             Dashboard
-              </Link>
-           </li>
-          <li className="nav-item">
-          <Link className="nav-link" to="/post-job" onClick={closeMenu}>
-               Post Job
-            </Link>
-            </li>
-            </>
-          )}
+
             {user?.role === "worker" && (
               <>
                 <li className="nav-item">
                   <Link className="nav-link" to="/jobs" onClick={closeMenu}>
-                    Jobs
+                    <i className="fa-solid fa-magnifying-glass me-2"></i>Jobs
                   </Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/profile" onClick={closeMenu}>
-                    Profile
+                    <i className="fa-solid fa-user me-2"></i>Profile
                   </Link>
                 </li>
               </>
             )}
 
             {user?.role === "company" && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/post-job" onClick={closeMenu}>
-                  Post Job
-                </Link>
-              </li>
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/company/dashboard" onClick={closeMenu}>
+                    <i className="fa-solid fa-chart-line me-2"></i>Dashboard
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/post-job" onClick={closeMenu}>
+                    <i className="fa-solid fa-square-plus me-2"></i>Post Job
+                  </Link>
+                </li>
+              </>
             )}
           </ul>
 
@@ -90,23 +85,26 @@ export default function Navbar() {
               <>
                 <li className="nav-item">
                   <Link className="nav-link" to="/login" onClick={closeMenu}>
-                    Login
+                    <i className="fa-solid fa-right-to-bracket me-2"></i>Login
                   </Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/register" onClick={closeMenu}>
-                    Register
+                    <i className="fa-solid fa-user-plus me-2"></i>Register
                   </Link>
                 </li>
               </>
             ) : (
               <>
-                <li className="nav-item">
-                  <span className="nav-link">Hi, {user.name}</span>
+                <li className="nav-item d-flex align-items-center">
+                  <span className="nav-link">
+                    <i className="fa-solid fa-hand-wave me-2"></i>
+                    Hi, {user.name}
+                  </span>
                 </li>
                 <li className="nav-item">
-                  <button className="btn btn-sm btn-danger ms-2" onClick={handleLogout}>
-                    Logout
+                  <button className="btn btn-sm btn-light ms-2 btn-logout" onClick={handleLogout}>
+                    <i className="fa-solid fa-right-from-bracket me-2"></i>Logout
                   </button>
                 </li>
               </>

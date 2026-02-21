@@ -9,7 +9,11 @@ import App from "./App";
 
 import { Provider } from "react-redux";
 import { store } from "./store/store";
-
+import "./css/JobList.css";
+import "./css/Navbar.css"
+import "./css/Home.css"; 
+import "./css/Home.css";
+ 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(

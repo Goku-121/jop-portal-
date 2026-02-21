@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import api from "../services/api";
 import { useSelector } from "react-redux";
-
+import "../css/JobDetails.css";
 export default function JobDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -13,7 +13,6 @@ export default function JobDetail() {
   const [loading, setLoading] = useState(true);
   const [errMsg, setErrMsg] = useState("");
 
-  // ✅ apply states
   const [cvFile, setCvFile] = useState(null);
   const [applyLoading, setApplyLoading] = useState(false);
 
@@ -36,39 +35,26 @@ export default function JobDetail() {
         setLoading(false);
       }
     };
-
     fetchJob();
   }, [id]);
 
-  // ✅ apply handler
   const handleApply = async () => {
     if (!user) {
       alert("Please login first");
       navigate("/login");
       return;
     }
-
-    if (user.role !== "worker") {
-      alert("Only workers can apply");
-      return;
-    }
-
-    if (!cvFile) {
-      alert("Please select a CV file first");
-      return;
-    }
+    if (user.role !== "worker") return alert("Only workers can apply");
+    if (!cvFile) return alert("Please select a CV file first");
 
     try {
       setApplyLoading(true);
-
       const formData = new FormData();
-      formData.append("cv", cvFile);      // must be "cv"
-      formData.append("jobId", job._id);  // must be jobId
+      formData.append("cv", cvFile);
+      formData.append("jobId", job._id);
 
       await api.post("/applications", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       alert("✅ Applied successfully!");
@@ -85,49 +71,54 @@ export default function JobDetail() {
   if (!job) return <p className="text-center mt-5">Job not found.</p>;
 
   return (
-    <div className="container mt-4">
-      <button className="btn btn-sm btn-outline-secondary mb-3" onClick={handleBack}>
-        ← Back
+    <div className="container page-wrap">
+      <button className="btn btn-outline-secondary mb-3" onClick={handleBack}>
+        <i className="fa-solid fa-arrow-left me-2"></i>Back
       </button>
 
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <h3>{job.title}</h3>
+      <div className="card card-pro">
+        <div className="card-body p-4">
+          <h3 className="fw-bold mb-1">{job.title}</h3>
 
-          <p className="text-muted">
-            📍 {job.location || "N/A"} • 💰 {job.salary || "N/A"}
+          <p className="text-muted2 mb-3">
+            <i className="fa-solid fa-location-dot me-2 text-primary"></i>
+            {job.location || "N/A"}{" "}
+            <span className="mx-2">•</span>
+            <i className="fa-solid fa-sack-dollar me-2 text-primary"></i>
+            {job.salary || "N/A"}
           </p>
 
-          <p>{job.description}</p>
+          <p className="text-muted2">{job.description}</p>
 
-          <p>
-            <strong>Posted By:</strong>{" "}
-            {job.postedBy?.name || "N/A"}
+          <p className="mb-0">
+            <strong>Posted By:</strong> {job.postedBy?.name || "N/A"}
           </p>
 
-          {/* ✅ APPLY SECTION */}
+          <hr />
+
           {user?.role === "worker" ? (
             <div className="mt-3">
-              <label className="form-label">Upload CV (PDF/DOC/DOCX)</label>
+              <label className="form-label fw-bold">
+                <i className="fa-solid fa-file-arrow-up me-2 text-primary"></i>
+                Upload CV (PDF/DOC/DOCX)
+              </label>
               <input
                 type="file"
-                className="form-control mb-2"
+                className="form-control mb-3"
                 accept=".pdf,.doc,.docx"
                 onChange={(e) => setCvFile(e.target.files[0])}
               />
 
-              <button
-                className="btn btn-success"
-                onClick={handleApply}
-                disabled={applyLoading}
-              >
+              <button className="btn btn-pro" onClick={handleApply} disabled={applyLoading}>
+                <i className="fa-solid fa-paper-plane me-2"></i>
                 {applyLoading ? "Applying..." : "Apply Now"}
               </button>
             </div>
           ) : (
-            <small className="text-muted">
+            <div className="text-muted2">
+              <i className="fa-solid fa-circle-info me-2"></i>
               Login as worker to apply.
-            </small>
+            </div>
           )}
         </div>
       </div>

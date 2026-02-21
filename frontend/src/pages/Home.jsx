@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { Link } from "react-router-dom";
-import "../css/Home.css";
+
 export default function Home() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,8 +9,8 @@ export default function Home() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-      const { data } = await api.get("/jobs", { params: { limit: 6, page: 1 } });
-setJobs(data.items || []);
+        const { data } = await api.get("/jobs", { params: { limit: 6, page: 1 } });
+        setJobs(data.items || []);
       } catch (err) {
         console.log(err);
       } finally {
@@ -21,35 +21,52 @@ setJobs(data.items || []);
   }, []);
 
   return (
-    <div className="container mt-5">
-      {/* Hero Section */}
-  <div className="hero-section text-center">
-  <h1>Welcome to Bangla Skill Jobs</h1>
-  <p className="lead">Find jobs or hire skilled workers easily!</p>
-  <Link to="/jobs" className="btn btn-primary">
-    Browse Jobs
-  </Link>
-</div>
-      
+    <div className="container page-wrap">
+      <div className="hero-pro text-center mb-4">
+        <h1 className="fw-bold mb-2">Welcome to Bangla Job Portal</h1>
+        <p className="mb-3 opacity-75">Find jobs or hire skilled workers easily!</p>
+        <Link to="/jobs" className="btn btn-light px-4 fw-bold">
+          <i className="fa-solid fa-magnifying-glass me-2"></i>
+          Browse Jobs
+        </Link>
+      </div>
 
-      {/* Featured Jobs */}
-      <h3 className="mb-3">Latest Jobs</h3>
+      <h3 className="mb-3 section-title">
+        <i className="fa-solid fa-bolt me-2 text-primary"></i>Latest Jobs
+      </h3>
+
       {loading ? (
-        <p>Loading jobs...</p>
+        <div className="card card-pro p-4 text-center">
+          <div className="spinner-border text-primary" role="status"></div>
+          <p className="mt-3 text-muted2 mb-0">Loading jobs...</p>
+        </div>
       ) : jobs.length === 0 ? (
-        <p>No jobs posted yet.</p>
+        <div className="card card-pro p-4 text-center">
+          <p className="mb-0 text-muted2">No jobs posted yet.</p>
+        </div>
       ) : (
         <div className="row">
           {jobs.map((job) => (
             <div key={job._id} className="col-md-4 mb-4">
-              <div className="card h-100 shadow-sm">
+              <div className="card job-card-pro h-100">
                 <div className="card-body">
-                  <h5 className="card-title">{job.title}</h5>
-                  <p className="card-text">{job.description.slice(0, 100)}...</p>
-                  <p className="mb-1"><strong>Location:</strong> {job.location}</p>
-                  <p><strong>Salary:</strong> {job.salary}</p>
-                  <Link to={`/jobs/${job._id}`} className="btn btn-sm btn-primary">
-                    View Details
+                  <h5 className="card-title fw-bold">{job.title}</h5>
+                  <p className="text-muted2 mb-3">
+                    {(job.description || "").slice(0, 100)}
+                    {(job.description || "").length > 100 ? "..." : ""}
+                  </p>
+
+                  <p className="mb-1">
+                    <i className="fa-solid fa-location-dot me-2 text-primary"></i>
+                    <strong>Location:</strong> {job.location || "N/A"}
+                  </p>
+                  <p className="mb-3">
+                    <i className="fa-solid fa-sack-dollar me-2 text-primary"></i>
+                    <strong>Salary:</strong> {job.salary || "N/A"}
+                  </p>
+
+                  <Link to={`/jobs/${job._id}`} className="btn btn-pro w-100">
+                    <i className="fa-solid fa-eye me-2"></i>View Details
                   </Link>
                 </div>
               </div>

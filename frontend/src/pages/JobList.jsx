@@ -3,6 +3,7 @@ import api from "../services/api";
 import { useSelector } from "react-redux";
 import "../css/JobList.css";
 import { Link } from "react-router-dom";
+
 export default function JobList() {
   const user = useSelector((s) => s.auth.user);
 
@@ -54,8 +55,8 @@ export default function JobList() {
     setLocation("");
   };
 
-return (
-  <div className="container mt-4">
+  return (
+    <div className="container mt-4">
       {/* Header with title and filter controls */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -66,7 +67,7 @@ return (
         </div>
 
         <div className="d-flex align-items-center gap-2">
-          {/* Filter button - modern professional style */}
+          {/* Filter button - modern professional style with SEARCH icon */}
           <button
             className={`btn btn-outline-primary btn-icon-filter position-relative ${showFilters ? "active" : ""}`}
             onClick={() => setShowFilters((prev) => !prev)}
@@ -74,7 +75,7 @@ return (
             data-bs-toggle="tooltip"
             data-bs-placement="top"
           >
-            <i className="bi bi-funnel"></i>
+            <i className="fa-solid fa-magnifying-glass"></i>
 
             {/* Badge showing if filters are active */}
             {(q || location) && (
@@ -139,36 +140,39 @@ return (
         </div>
       )}
 
-      {/* Job list */}
-      {!loading &&
-        jobs.map((job) => (
-          <div key={job._id} className="card job-card mb-3 shadow-sm">
-            <div className="card-body">
-              <h5 className="card-title mb-2 fw-semibold">{job.title}</h5>
+      {/* Job list - grid wrapper added for better styling */}
+      {!loading && jobs.length > 0 && (
+        <div className="job-list-grid">
+          {jobs.map((job) => (
+            <div key={job._id} className="card job-card mb-3 shadow-sm">
+              <div className="card-body">
+                <h5 className="card-title mb-2 fw-semibold">{job.title}</h5>
 
-              <div className="job-meta text-muted mb-3 d-flex flex-wrap gap-3">
-                <span>📍 {job.location || "Not specified"}</span>
-                <span>•</span>
-                <span>💰 {job.salary || "Negotiable"}</span>
+                <div className="job-meta text-muted mb-3 d-flex flex-wrap gap-3">
+                  <span>📍 {job.location || "Not specified"}</span>
+                  <span>•</span>
+                  <span>💰 {job.salary || "Negotiable"}</span>
+                </div>
+
+                <p className="card-text text-secondary mb-3">
+                  {(job.description || "").slice(0, 160)}
+                  {(job.description || "").length > 160 ? "..." : ""}
+                </p>
+
+                {user?.role === "worker" ? (
+                  <Link to={`/jobs/${job._id}`} className="btn btn-primary btn-sm px-4">
+                    Apply Now
+                  </Link>
+                ) : (
+                  <Link to="/login" className="btn btn-outline-secondary btn-sm px-4">
+                    Login to Apply
+                  </Link>
+                )}
               </div>
-
-              <p className="card-text text-secondary mb-3">
-                {(job.description || "").slice(0, 160)}
-                {(job.description || "").length > 160 ? "..." : ""}
-              </p>
-
-              {user?.role === "worker" ? (
-                <Link to={`/jobs/${job._id}`} className="btn btn-primary btn-sm px-4">
-                  Apply Now
-                </Link>
-              ) : (
-                <Link to="/login" className="btn btn-outline-secondary btn-sm px-4">
-                  Login to Apply
-                </Link>
-              )}
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+      )}
 
       {/* Pagination */}
       {!loading && totalPages > 1 && (
