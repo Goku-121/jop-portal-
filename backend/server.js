@@ -10,26 +10,28 @@ connectDB();
 
 const app = express();
 
-// ✅ CORS FIRST
+// Enable CORS for allowed origins (local dev and live frontend)
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",         
-      "http://localhost:3000",
-      "https://jop-portal-8ibjnntp7-shuvos-projects-cf52e1e3.vercel.app",  
-      "*"  
+      "http://localhost:5173",          // Local Vite dev server
+      "http://localhost:5174",          // Alternative local port if used
+      "http://localhost:3000",          // Common local frontend port
+      "https://jop-portal-8ibjnntp7-shuvos-projects-cf52e1e3.vercel.app",  // Live frontend URL
+      "*"                               // Allow all origins temporarily (remove in production for security)
     ],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+    credentials: true,                  // Allow cookies/credentials
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  // Allowed HTTP methods
+    allowedHeaders: ["Content-Type", "Authorization"]      // Allowed request headers
   })
 );
 
 app.use(express.json());
 
-// uploads
+// Serve static files from uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-//  Root route 
+
+// Root route - simple health check / welcome message
 app.get('/', (req, res) => {
   res.json({
     message: "Job Portal Backend is LIVE! 🚀",
@@ -38,8 +40,7 @@ app.get('/', (req, res) => {
   });
 });
 
-
-// routes
+// API routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/jobs", require("./routes/jobs"));
 app.use("/api/applications", require("./routes/applications"));
@@ -49,9 +50,8 @@ app.use("/api/cv", require("./routes/cvRoutes"));
 app.use("/api/company", require("./routes/company"));
 app.use("/api/notifications", require("./routes/notifications"));
 
-// error handler
+// Global error handler middleware
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
