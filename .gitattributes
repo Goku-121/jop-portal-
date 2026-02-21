@@ -1,0 +1,16 @@
+# Enforce LF line endings in repository for all text/code files
+*           text=auto eol=lf
+
+# Stronger rules for common project files
+*.js        text eol=lf
+*.jsx       text eol=lf
+*.ts        text eol=lf
+*.tsx       text eol=lf
+*.json      text eol=lf
+*.css       text eol=lf
+*.html      text eol=lf
+*.md        text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.gitignore text eol=lf
+package*.json text eol=lf
