@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://jop-portal-gbmo.vercel.app/api", // ← এখানে তোমার backend URL ঠিক আছে
-  timeout: 30000, // ৩০ সেকেন্ড টাইমআউট (Network Error কমাবে)
+  baseURL: import.meta.env.VITE_API_URL || "https://jop-portal-gbmo.vercel.app/api",
+  timeout: 30000, // ৩০ সেকেন্ড — Network Error কমাবে
   headers: {
     "Content-Type": "application/json",
   },
@@ -17,14 +17,19 @@ API.interceptors.request.use((config) => {
   }
   return config;
 }, (error) => {
-  console.error("Request interceptor error:", error);
+  console.error("Request failed:", error);
   return Promise.reject(error);
 });
 
 API.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("Response interceptor error:", error.message, error.response?.data);
+    console.error("API Response Error:", {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+      url: error.config?.url
+    });
     return Promise.reject(error);
   }
 );

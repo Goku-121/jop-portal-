@@ -13,17 +13,17 @@ export default function Home() {
         setLoading(true);
         setError(null);
         const { data } = await api.get("/jobs", { params: { limit: 6, page: 1 } });
-        console.log("Home - Full API Response:", data);
-        console.log("Home - Items:", data.items);
+        console.log("Home - Full Response:", data);
+        console.log("Home - Jobs:", data.items);
         setJobs(data.items || []);
       } catch (err) {
-        console.error("Home - Fetch error details:", {
+        console.error("Home - Fetch error:", {
           message: err.message,
           status: err.response?.status,
           data: err.response?.data,
-          url: err.config?.url,
+          url: err.config?.url
         });
-        setError(err.message || "Failed to load jobs");
+        setError("Failed to load jobs: " + err.message);
         setJobs([]);
       } finally {
         setLoading(false);
@@ -32,23 +32,8 @@ export default function Home() {
     fetchJobs();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="container page-wrap text-center mt-5">
-        <div className="spinner-border text-primary" role="status"></div>
-        <p className="mt-3">Loading latest jobs...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container page-wrap text-center mt-5 text-danger">
-        <h4>Error: {error}</h4>
-        <p>Please check your connection or try again later.</p>
-      </div>
-    );
-  }
+  if (loading) return <div className="text-center mt-5">Loading jobs...</div>;
+  if (error) return <div className="text-center mt-5 text-danger">{error}</div>;
 
   return (
     <div className="container page-wrap">
@@ -75,12 +60,11 @@ export default function Home() {
             <div key={job._id} className="col-md-4 mb-4">
               <div className="card job-card-pro h-100">
                 <div className="card-body">
-                  <h5 className="card-title fw-bold">{job.title || "Untitled Job"}</h5>
+                  <h5 className="card-title fw-bold">{job.title || "No Title"}</h5>
                   <p className="text-muted2 mb-3">
                     {(job.description || "").slice(0, 100)}
                     {(job.description || "").length > 100 ? "..." : ""}
                   </p>
-
                   <p className="mb-1">
                     <i className="fa-solid fa-location-dot me-2 text-primary"></i>
                     <strong>Location:</strong> {job.location || "N/A"}
@@ -89,7 +73,6 @@ export default function Home() {
                     <i className="fa-solid fa-sack-dollar me-2 text-primary"></i>
                     <strong>Salary:</strong> {job.salary || "Negotiable"}
                   </p>
-
                   <Link to={`/jobs/${job._id}`} className="btn btn-pro w-100">
                     <i className="fa-solid fa-eye me-2"></i>View Details
                   </Link>
@@ -99,11 +82,6 @@ export default function Home() {
           ))}
         </div>
       )}
-
-      
-      <pre style={{ background: "#f8f9fa", padding: "15px", borderRadius: "8px", marginTop: "30px" }}>
-        {JSON.stringify({ jobsLoaded: jobs.length, sampleJob: jobs[0] || "No data" }, null, 2)}
-      </pre>
     </div>
   );
 }

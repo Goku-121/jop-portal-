@@ -7,7 +7,6 @@ const { errorHandler } = require("./middleware/errorMiddleware");
 
 dotenv.config();
 
-// Debug env variables (remove sensitive info in production)
 console.log("MONGO_URI:", process.env.MONGO_URI ? "Set" : "Not set");
 console.log("JWT_SECRET:", process.env.JWT_SECRET ? "Set" : "Not set");
 console.log("PORT:", process.env.PORT || 5000);
@@ -21,29 +20,19 @@ connectDB()
 
 const app = express();
 
-// CORS configuration - secure and complete
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:3000",
-      "https://jop-portal-8ibjnntp7-shuvos-projects-cf52e1e3.vercel.app",
-      "*" // temporary for testing - remove in production
-    ],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-  })
-);
+
+app.use(cors({
+  origin: true,  
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204
+}));
 
 app.use(express.json());
 
-// Serve static uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Root health check
 app.get("/", (req, res) => {
   res.json({
     message: "Job Portal Backend is LIVE! 🚀",
@@ -53,7 +42,6 @@ app.get("/", (req, res) => {
   });
 });
 
-// Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/jobs", require("./routes/jobs"));
 app.use("/api/applications", require("./routes/applications"));
@@ -63,7 +51,6 @@ app.use("/api/cv", require("./routes/cvRoutes"));
 app.use("/api/company", require("./routes/company"));
 app.use("/api/notifications", require("./routes/notifications"));
 
-// Error handler (last middleware)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
