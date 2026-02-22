@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <div className="container page-wrap">
       <div className="hero-pro text-center mb-4">
-        <h1 className="fw-bold mb-2">Welcome to Kaaj Kormo </h1>
+        <h1 className="fw-bold mb-2"> Welcome to Kaaj Kormo  </h1>
         <p className="mb-3 opacity-75">Find jobs or hire skilled workers easily!</p>
         <Link to="/jobs" className="btn btn-light px-4 fw-bold">
           <i className="fa-solid fa-magnifying-glass me-2"></i>
