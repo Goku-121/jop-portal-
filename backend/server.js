@@ -7,10 +7,12 @@ const { errorHandler } = require("./middleware/errorMiddleware");
 
 dotenv.config();
 
+// Debug env
 console.log("MONGO_URI:", process.env.MONGO_URI ? "Set" : "Not set");
 console.log("JWT_SECRET:", process.env.JWT_SECRET ? "Set" : "Not set");
 console.log("PORT:", process.env.PORT || 5000);
 
+// Connect DB
 connectDB()
   .then(() => console.log("MongoDB connected successfully"))
   .catch(err => {
@@ -20,9 +22,9 @@ connectDB()
 
 const app = express();
 
-
+// CORS configuration for development and production
 app.use(cors({
-  origin: true,  
+  origin: true,                     
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -31,8 +33,10 @@ app.use(cors({
 
 app.use(express.json());
 
+// Static uploads folder
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Root route 
 app.get("/", (req, res) => {
   res.json({
     message: "Job Portal Backend is LIVE! 🚀",
@@ -42,6 +46,7 @@ app.get("/", (req, res) => {
   });
 });
 
+// All routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/jobs", require("./routes/jobs"));
 app.use("/api/applications", require("./routes/applications"));
@@ -51,6 +56,7 @@ app.use("/api/cv", require("./routes/cvRoutes"));
 app.use("/api/company", require("./routes/company"));
 app.use("/api/notifications", require("./routes/notifications"));
 
+// Error handler 
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

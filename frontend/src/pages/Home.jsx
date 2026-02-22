@@ -5,43 +5,20 @@ import { Link } from "react-router-dom";
 export default function Home() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        setLoading(true);
-        setError(null);
         const { data } = await api.get("/jobs", { params: { limit: 6, page: 1 } });
         setJobs(data.items || []);
       } catch (err) {
-        console.error("Home - Fetch error:", err.message);
-        setError("Failed to load jobs: " + err.message);
-        setJobs([]);
+        console.log("Home fetch error:", err.message);
       } finally {
         setLoading(false);
       }
     };
     fetchJobs();
   }, []);
-
-  if (loading) {
-    return (
-      <div className="text-center mt-5">
-        <div className="spinner-border text-primary" role="status"></div>
-        <p className="mt-3">Loading jobs...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center mt-5 text-danger">
-        <h4>{error}</h4>
-        <p>Please check your connection or try again later.</p>
-      </div>
-    );
-  }
 
   return (
     <div className="container page-wrap">
@@ -58,33 +35,22 @@ export default function Home() {
         <i className="fa-solid fa-bolt me-2 text-primary"></i>Latest Jobs
       </h3>
 
-      {jobs.length === 0 ? (
-        <div className="card card-pro p-4 text-center">
-          <p className="mb-0 text-muted2">No jobs posted yet.</p>
-        </div>
+      {loading ? (
+        <div className="text-center">Loading...</div>
+      ) : jobs.length === 0 ? (
+        <div className="text-center">No jobs posted yet.</div>
       ) : (
         <div className="row">
-          {jobs.map((job) => (
+          {jobs.map(job => (
             <div key={job._id} className="col-md-4 mb-4">
-              <div className="card job-card-pro h-100">
+              <div className="card">
                 <div className="card-body">
-                  <h5 className="card-title fw-bold">{job.title || "Untitled Job"}</h5>
-                  <p className="text-muted2 mb-3">
-                    {(job.description || "").slice(0, 100)}
-                    {(job.description || "").length > 100 ? "..." : ""}
-                  </p>
-
-                  <p className="mb-1">
-                    <i className="fa-solid fa-location-dot me-2 text-primary"></i>
-                    <strong>Location:</strong> {job.location || "N/A"}
-                  </p>
-                  <p className="mb-3">
-                    <i className="fa-solid fa-sack-dollar me-2 text-primary"></i>
-                    <strong>Salary:</strong> {job.salary || "Negotiable"}
-                  </p>
-
-                  <Link to={`/jobs/${job._id}`} className="btn btn-pro w-100">
-                    <i className="fa-solid fa-eye me-2"></i>View Details
+                  <h5>{job.title || "Untitled Job"}</h5>
+                  <p>{job.description?.slice(0, 100)}{job.description?.length > 100 ? "..." : ""}</p>
+                  <p><strong>Location:</strong> {job.location || "N/A"}</p>
+                  <p><strong>Salary:</strong> {job.salary || "Negotiable"}</p>
+                  <Link to={`/jobs/${job._id}`} className="btn btn-primary w-100">
+                    View Details
                   </Link>
                 </div>
               </div>

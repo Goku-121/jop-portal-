@@ -8,19 +8,23 @@ const API = axios.create({
   },
 });
 
-API.interceptors.request.use((config) => {
-  const token = localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user")).token
-    : null;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// Request interceptor: token যোগ করা
+API.interceptors.request.use(
+  (config) => {
+    const user = localStorage.getItem("user");
+    const token = user ? JSON.parse(user).token : null;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    console.error("Request interceptor error:", error);
+    return Promise.reject(error);
   }
-  return config;
-}, (error) => {
-  console.error("Request failed:", error);
-  return Promise.reject(error);
-});
+);
 
+// Response interceptor: error detail logging
 API.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -28,7 +32,8 @@ API.interceptors.response.use(
       message: error.message,
       status: error.response?.status,
       data: error.response?.data,
-      url: error.config?.url
+      url: error.config?.url || "unknown",
+      fullError: error,
     });
     return Promise.reject(error);
   }
