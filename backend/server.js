@@ -21,10 +21,13 @@ app.use(
       "*"                               // Allow all origins temporarily (remove in production for security)
     ],
     credentials: true,                  // Allow cookies/credentials
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],  // Allowed HTTP methods
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],  // Allowed HTTP methods
     allowedHeaders: ["Content-Type", "Authorization"]      // Allowed request headers
   })
 );
+
+// Handle OPTIONS preflight requests explicitly (this fixes 500 error on OPTIONS requests)
+app.options("*", cors());
 
 app.use(express.json());
 
