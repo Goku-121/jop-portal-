@@ -30,9 +30,9 @@ export default function Navbar() {
           onClick={closeMenu}
         >
           <img
-            src="/kajkormo.png"
-            alt="Kaj Kormo"
-            height="38"
+                src="/kajkormo.png"
+                alt="Kaj Kormo"
+                height="38"
             style={{ borderRadius: 8, objectFit: "contain" }}
           />
           <span className="fw-semibold">Kaj Kormo</span>
