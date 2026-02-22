@@ -66,12 +66,12 @@ export default function WorkerProfile() {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("cv", file);
+    const fd = new FormData();
+    fd.append("cv", file);
 
     try {
       setCvUploading(true);
-      const { data } = await api.post("/cv", formData);
+      const { data } = await api.post("/cv", fd); // no headers needed
       setExistingCV(data?.cvUrl || null);
       alert("CV uploaded successfully!");
     } catch (err) {
@@ -128,7 +128,7 @@ export default function WorkerProfile() {
 
       {existingCV && (
         <a
-          href={existingCV} // ✅ Cloudinary full URL
+          href={existingCV}
           target="_blank"
           rel="noreferrer"
           className="btn btn-sm btn-secondary"

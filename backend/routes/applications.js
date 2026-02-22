@@ -1,8 +1,7 @@
-// backend/routes/applications.js
 const express = require("express");
 const router = express.Router();
-const streamifier = require("streamifier");
 const cloudinary = require("cloudinary").v2;
+const streamifier = require("streamifier");
 
 const { protect, workerOnly } = require("../middleware/authMiddleware");
 const upload = require("../middleware/uploadMiddleware");
@@ -17,39 +16,31 @@ cloudinary.config({
 router.post("/", protect, workerOnly, upload.single("cv"), async (req, res) => {
   try {
     const { jobId } = req.body;
-
     if (!jobId) return res.status(400).json({ message: "jobId required" });
-    if (!req.file) return res.status(400).json({ message: "CV file required (field name: cv)" });
+    if (!req.file?.buffer) return res.status(400).json({ message: "CV file required (field name: cv)" });
 
-    // prevent duplicate apply
     const exists = await Application.findOne({ job: jobId, applicant: req.user._id });
     if (exists) return res.status(400).json({ message: "You already applied to this job." });
 
-    // upload to cloudinary (buffer -> stream)
-    const uploadResult = await new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        { resource_type: "auto", folder: "jobportal_cvs" },
-        (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        }
-      );
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: "jobportal_cvs", resource_type: "raw" },
+      async (error, result) => {
+        if (error) return res.status(500).json({ message: error.message || "Cloudinary upload failed" });
 
-      streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
-    });
+        const app = await Application.create({
+          job: jobId,
+          applicant: req.user._id,
+          cvUrl: result.secure_url,
+          status: "pending",
+        });
 
-    const app = await Application.create({
-      job: jobId,
-      applicant: req.user._id,
-      cvUrl: uploadResult.secure_url, // ✅ full url
-      status: "pending",
-    });
+        return res.status(201).json(app);
+      }
+    );
 
-    return res.status(201).json(app);
+    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
   } catch (err) {
-    if (err.code === 11000) {
-      return res.status(400).json({ message: "You already applied to this job." });
-    }
+    if (err.code === 11000) return res.status(400).json({ message: "You already applied to this job." });
     return res.status(500).json({ message: err.message });
   }
 });
@@ -59,7 +50,6 @@ router.get("/", protect, workerOnly, async (req, res) => {
     const apps = await Application.find({ applicant: req.user._id })
       .populate("job")
       .sort({ createdAt: -1 });
-
     res.json(apps);
   } catch (err) {
     res.status(500).json({ message: err.message });

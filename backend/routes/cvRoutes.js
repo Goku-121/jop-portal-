@@ -1,41 +1,41 @@
 const express = require("express");
 const router = express.Router();
-const CV = require("../models/CV");
+const cloudinary = require("cloudinary").v2;
+const streamifier = require("streamifier");
+
 const upload = require("../middleware/uploadMiddleware");
-const { protect, workerOnly } = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
+const User = require("../models/User");
 
-// Upload or replace CV
-router.post(
-  "/",
-  protect,
-  workerOnly,
-  upload.single("cv"),
-  async (req, res) => {
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-
-    let cv = await CV.findOne({ user: req.user._id });
-
-   if (cv) {
-  cv.cvUrl = `/uploads/${req.file.filename}`;
-  await cv.save();
-  return res.json(cv);
-}
-
-cv = await CV.create({
-  user: req.user._id,
-  cvUrl: `/uploads/${req.file.filename}`,
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
 });
 
-res.json(cv);
-  }
-);
+router.get("/me", protect, async (req, res) => {
+  const me = await User.findById(req.user._id).select("cvUrl");
+  res.json({ cvUrl: me?.cvUrl || null });
+});
 
-// Get own CV
-router.get("/me", protect, workerOnly, async (req, res) => {
-  const cv = await CV.findOne({ user: req.user._id });
-  res.json(cv);
+router.post("/", protect, upload.single("cv"), async (req, res) => {
+  try {
+    if (!req.file?.buffer) return res.status(400).json({ message: "No file upload" });
+
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder: "jobportal_cvs", resource_type: "raw" },
+      async (error, result) => {
+        if (error) return res.status(500).json({ message: error.message || "Cloudinary upload failed" });
+
+        await User.findByIdAndUpdate(req.user._id, { cvUrl: result.secure_url });
+        return res.json({ cvUrl: result.secure_url });
+      }
+    );
+
+    streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+  } catch (err) {
+    res.status(500).json({ message: err.message || "CV upload failed" });
+  }
 });
 
 module.exports = router;
