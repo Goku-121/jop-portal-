@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import api from "../services/api";
 import { useSelector } from "react-redux";
 import "../css/JobDetails.css";
+
 export default function JobDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -35,6 +36,7 @@ export default function JobDetail() {
         setLoading(false);
       }
     };
+
     fetchJob();
   }, [id]);
 
@@ -44,18 +46,31 @@ export default function JobDetail() {
       navigate("/login");
       return;
     }
-    if (user.role !== "worker") return alert("Only workers can apply");
-    if (!cvFile) return alert("Please select a CV file first");
+
+    if (user.role !== "worker") {
+      alert("Only workers can apply");
+      return;
+    }
+
+    if (!job?._id) {
+      alert("Job not found");
+      return;
+    }
+
+    if (!cvFile) {
+      alert("Please select a CV file first");
+      return;
+    }
 
     try {
       setApplyLoading(true);
-      const formData = new FormData();
-      formData.append("cv", cvFile);
-      formData.append("jobId", job._id);
 
-      await api.post("/applications", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const formData = new FormData();
+      formData.append("jobId", job._id);
+      formData.append("cv", cvFile); // ✅ backend expects field name "cv"
+
+      // ✅ IMPORTANT: DO NOT set Content-Type manually (Axios will set boundary)
+      await api.post("/applications", formData);
 
       alert("✅ Applied successfully!");
       setCvFile(null);
@@ -82,8 +97,7 @@ export default function JobDetail() {
 
           <p className="text-muted2 mb-3">
             <i className="fa-solid fa-location-dot me-2 text-primary"></i>
-            {job.location || "N/A"}{" "}
-            <span className="mx-2">•</span>
+            {job.location || "N/A"} <span className="mx-2">•</span>
             <i className="fa-solid fa-sack-dollar me-2 text-primary"></i>
             {job.salary || "N/A"}
           </p>
@@ -102,14 +116,19 @@ export default function JobDetail() {
                 <i className="fa-solid fa-file-arrow-up me-2 text-primary"></i>
                 Upload CV (PDF/DOC/DOCX)
               </label>
+
               <input
                 type="file"
                 className="form-control mb-3"
                 accept=".pdf,.doc,.docx"
-                onChange={(e) => setCvFile(e.target.files[0])}
+                onChange={(e) => setCvFile(e.target.files?.[0] || null)}
               />
 
-              <button className="btn btn-pro" onClick={handleApply} disabled={applyLoading}>
+              <button
+                className="btn btn-pro"
+                onClick={handleApply}
+                disabled={applyLoading}
+              >
                 <i className="fa-solid fa-paper-plane me-2"></i>
                 {applyLoading ? "Applying..." : "Apply Now"}
               </button>
