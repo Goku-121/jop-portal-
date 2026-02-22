@@ -23,11 +23,19 @@ export default function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark navbar-pro">
       <div className="container">
-        <Link className="navbar-brand" to="/" onClick={closeMenu}>
-          <span className="brand-logo">
-            <i className="fa-solid fa-briefcase"></i>
-          </span>
-          Kaj Kormo
+        {/* ✅ BRAND LOGO + TEXT */}
+        <Link
+          className="navbar-brand d-flex align-items-center gap-2"
+          to="/"
+          onClick={closeMenu}
+        >
+          <img
+            src="/kajkormo.png"
+            alt="Kaj Kormo"
+            height="38"
+            style={{ borderRadius: 8, objectFit: "contain" }}
+          />
+          <span className="fw-semibold">Kaj Kormo</span>
         </Link>
 
         <button
@@ -41,7 +49,10 @@ export default function Navbar() {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className={`collapse navbar-collapse ${open ? "show" : ""}`} id="navbarNav">
+        <div
+          className={`collapse navbar-collapse ${open ? "show" : ""}`}
+          id="navbarNav"
+        >
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <Link className="nav-link" to="/" onClick={closeMenu}>
@@ -67,7 +78,11 @@ export default function Navbar() {
             {user?.role === "company" && (
               <>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/company/dashboard" onClick={closeMenu}>
+                  <Link
+                    className="nav-link"
+                    to="/company/dashboard"
+                    onClick={closeMenu}
+                  >
                     <i className="fa-solid fa-chart-line me-2"></i>Dashboard
                   </Link>
                 </li>
@@ -103,8 +118,13 @@ export default function Navbar() {
                   </span>
                 </li>
                 <li className="nav-item">
-                  <button className="btn btn-sm btn-light ms-2 btn-logout" onClick={handleLogout}>
-                    <i className="fa-solid fa-right-from-bracket me-2"></i>Logout
+                  <button
+                    className="btn btn-sm btn-light ms-2 btn-logout"
+                    onClick={handleLogout}
+                    type="button"
+                  >
+                    <i className="fa-solid fa-right-from-bracket me-2"></i>
+                    Logout
                   </button>
                 </li>
               </>
