@@ -7,46 +7,43 @@ const { errorHandler } = require("./middleware/errorMiddleware");
 
 dotenv.config();
 
-// Log environment variables for debugging (remove sensitive info in production)
+// Debug env variables (remove sensitive info in production)
 console.log("MONGO_URI:", process.env.MONGO_URI ? "Set" : "Not set");
 console.log("JWT_SECRET:", process.env.JWT_SECRET ? "Set" : "Not set");
-console.log("FRONTEND_URL:", process.env.FRONTEND_URL || "Not set");
+console.log("PORT:", process.env.PORT || 5000);
 
-connectDB().catch((err) => {
-  console.error("MongoDB connection failed:", err.message);
-  process.exit(1); // Exit if DB connection fails
-});
+connectDB()
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch(err => {
+    console.error("MongoDB connection failed:", err.message || err);
+    process.exit(1);
+  });
 
 const app = express();
 
-// CORS configuration - allow your frontend, local dev, and temporarily all origins
+// CORS configuration - secure and complete
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",          // Local Vite dev server
-      "http://localhost:5174",          // Alternative local port
-      "http://localhost:3000",          // Other local frontend ports
-      "https://jop-portal-8ibjnntp7-shuvos-projects-cf52e1e3.vercel.app",  // Your live frontend URL
-      "*"                               // Allow all for testing (remove in production)
+      "http://localhost:5173",
+      "http://localhost:3000",
+      "https://jop-portal-8ibjnntp7-shuvos-projects-cf52e1e3.vercel.app",
+      "*" // temporary for testing - remove in production
     ],
-    credentials: true,                  // Allow cookies, auth headers
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],  // All needed methods
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    exposedHeaders: ["Content-Length", "X-Content-Type-Options"],
-    optionsSuccessStatus: 204           // For legacy browsers
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   })
 );
 
-// Handle OPTIONS preflight requests explicitly (fixes 500 on OPTIONS)
-app.options("*", cors());
-
-// Parse JSON bodies
 app.use(express.json());
 
-// Serve uploaded files statically
+// Serve static uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Root route - health check / welcome
+// Root health check
 app.get("/", (req, res) => {
   res.json({
     message: "Job Portal Backend is LIVE! 🚀",
@@ -56,7 +53,7 @@ app.get("/", (req, res) => {
   });
 });
 
-// API routes
+// Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/jobs", require("./routes/jobs"));
 app.use("/api/applications", require("./routes/applications"));
@@ -66,12 +63,10 @@ app.use("/api/cv", require("./routes/cvRoutes"));
 app.use("/api/company", require("./routes/company"));
 app.use("/api/notifications", require("./routes/notifications"));
 
-// Global error handler - must be last
+// Error handler (last middleware)
 app.use(errorHandler);
 
-// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
 });
