@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import api from "../services/api";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../store/authSlice";
@@ -13,7 +13,16 @@ export default function WorkerProfile() {
   const [loading, setLoading] = useState(false);
 
   const [apps, setApps] = useState([]);
+  const [cvUploading, setCvUploading] = useState(false);
 
+  // ✅ API origin auto detect (localhost remove)
+  // VITE_API_URL example: https://xxx.vercel.app/api
+  const API_ORIGIN = useMemo(() => {
+    const base = import.meta.env.VITE_API_URL || "https://jop-portal-gbmo.vercel.app/api";
+    return base.replace(/\/api\/?$/, "");
+  }, []);
+
+  // ✅ initial set + fetch existing CV
   useEffect(() => {
     if (!user) return;
 
@@ -23,25 +32,27 @@ export default function WorkerProfile() {
     api
       .get("/cv/me")
       .then((r) => setExistingCV(r.data?.cvUrl || null))
-      .catch(() => {});
+      .catch(() => setExistingCV(null));
   }, [user]);
 
+  // ✅ fetch my applications
   useEffect(() => {
     if (!user) return;
 
     api
       .get("/applications")
-      .then((r) => setApps(r.data || []))
+      .then((r) => setApps(Array.isArray(r.data) ? r.data : []))
       .catch(() => setApps([]));
   }, [user]);
 
+  // ✅ update profile
   const handleUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const { data } = await api.put("/users/me", { name, email });
 
-      // keep token/adminId etc from old user
+      // keep token/role from old user
       dispatch(setUser({ ...user, ...data }));
 
       alert("Profile updated successfully!");
@@ -52,19 +63,39 @@ export default function WorkerProfile() {
     }
   };
 
+  // ✅ upload CV (FormData)
   const handleCVUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Optional validation
+    const allowed = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (!allowed.includes(file.type)) {
+      alert("Only PDF/DOC/DOCX allowed!");
+      e.target.value = "";
+      return;
+    }
 
     const formData = new FormData();
     formData.append("cv", file);
 
     try {
+      setCvUploading(true);
+
+      // ✅ IMPORTANT: don't set Content-Type manually
       const { data } = await api.post("/cv", formData);
-      setExistingCV(data.cvUrl);
+
+      setExistingCV(data?.cvUrl || null);
       alert("CV uploaded successfully!");
     } catch (err) {
       alert(err.response?.data?.message || "CV upload failed");
+    } finally {
+      setCvUploading(false);
+      e.target.value = ""; // reset input
     }
   };
 
@@ -77,7 +108,7 @@ export default function WorkerProfile() {
       <h2 className="mb-4">Worker Profile</h2>
 
       <form onSubmit={handleUpdate}>
-        <label>Name</label>
+        <label className="form-label">Name</label>
         <input
           className="form-control mb-3"
           value={name}
@@ -85,7 +116,7 @@ export default function WorkerProfile() {
           required
         />
 
-        <label>Email</label>
+        <label className="form-label">Email</label>
         <input
           type="email"
           className="form-control mb-3"
@@ -101,17 +132,20 @@ export default function WorkerProfile() {
 
       <hr />
 
-      <label>Upload CV</label>
+      <label className="form-label">Upload CV</label>
       <input
         type="file"
         className="form-control mb-3"
         accept=".pdf,.doc,.docx"
         onChange={handleCVUpload}
+        disabled={cvUploading}
       />
+
+      {cvUploading && <p className="text-muted">Uploading CV...</p>}
 
       {existingCV && (
         <a
-          href={`http://localhost:5000${existingCV}`}
+          href={`${API_ORIGIN}${existingCV}`}
           target="_blank"
           rel="noreferrer"
           className="btn btn-sm btn-secondary"
@@ -131,7 +165,7 @@ export default function WorkerProfile() {
           <div key={a._id} className="card p-2 mb-2">
             <div className="d-flex justify-content-between align-items-center">
               <strong>{a.job?.title || "Job Deleted"}</strong>
-              <span className="badge bg-secondary">{a.status}</span>
+              <span className="badge bg-secondary">{a.status || "pending"}</span>
             </div>
           </div>
         ))

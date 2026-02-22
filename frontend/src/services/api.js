@@ -1,42 +1,34 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://jop-portal-gbmo.vercel.app/api",
-  timeout: 30000, // ৩০ সেকেন্ড — Network Error কমাবে
-  headers: {
-    "Content-Type": "application/json",
-  },
+const API_URL =
+  import.meta.env.VITE_API_URL || "https://jop-portal-gbmo.vercel.app/api";
+
+const api = axios.create({
+  baseURL: API_URL,
+  timeout: 30000,
+  // ❌ headers এ Content-Type fixed 
 });
 
-// Request interceptor: token যোগ করা
-API.interceptors.request.use(
+// Token auto add + FormData 
+api.interceptors.request.use(
   (config) => {
-    const user = localStorage.getItem("user");
-    const token = user ? JSON.parse(user).token : null;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    try {
+      const raw = localStorage.getItem("user");
+      const token = raw ? JSON.parse(raw)?.token : null;
+      if (token) config.headers.Authorization = `Bearer ${token}`;
+    } catch {}
+
+    //  FormData 
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    } else {
+      // JSON 
+      config.headers["Content-Type"] = "application/json";
     }
+
     return config;
   },
-  (error) => {
-    console.error("Request interceptor error:", error);
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor: error detail logging
-API.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("API Response Error:", {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data,
-      url: error.config?.url || "unknown",
-      fullError: error,
-    });
-    return Promise.reject(error);
-  }
-);
-
-export default API;
+export default api;
