@@ -14,23 +14,27 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* CORS */
-app.use(
-  cors({
-    origin: true, // temporary allow all origins (for testing)
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-app.options("*", cors());
+/* ✅ CORS (Vercel-safe) */
+const corsOptions = {
+  origin: true, // allow all for now (you can restrict later)
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions)); // ✅ FIX: don't use "*" (crashes on Vercel)
 
 /* Static */
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 /* Routes */
 app.get("/", (req, res) => {
-  res.json({ ok: true, message: "Backend running", time: new Date().toISOString() });
+  res.json({
+    ok: true,
+    message: "Backend running",
+    time: new Date().toISOString(),
+  });
 });
 
 app.use("/api/auth", require("./routes/auth"));
@@ -42,9 +46,10 @@ app.use("/api/cv", require("./routes/cvRoutes"));
 app.use("/api/company", require("./routes/company"));
 app.use("/api/notifications", require("./routes/notifications"));
 
+/* Error handler */
 app.use(errorHandler);
 
-/* ✅ Connect DB (don’t crash serverless) */
+/* ✅ Connect DB (don’t crash serverless cold start) */
 connectDB().catch((err) => console.error("MongoDB connection failed:", err));
 
 /* ✅ IMPORTANT: no app.listen() on Vercel */
