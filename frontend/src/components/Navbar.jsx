@@ -27,7 +27,7 @@ export default function Navbar() {
           <span className="brand-logo">
             <i className="fa-solid fa-briefcase"></i>
           </span>
-          Bangla Job Portal
+          Kaj Kormo
         </Link>
 
         <button
