@@ -10,29 +10,14 @@ dotenv.config();
 
 const app = express();
 
-/* ✅ JSON */
+/* Body parsers */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* ✅ CORS: allow both frontend + admin */
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:3000",
-
-  // ✅ তোমার Admin panel domain (screenshot)
-  "https://job-portal-g1rn-75qxn8x37-shuvos-projects-cf52e1e3.vercel.app",
-
-  // ✅ তোমার Main frontend domain (Kaj Kormo) — এটা domain ঠিকটা বসাও
-  "https://job-portal-g1rn-2rcxsanvu-shuvos-projects-cf52e1e3.vercel.app",
-];
-
+/* CORS */
 app.use(
   cors({
-    origin: (origin, cb) => {
-      if (!origin) return cb(null, true);
-      if (allowedOrigins.includes(origin)) return cb(null, true);
-      return cb(new Error("CORS blocked: " + origin));
-    },
+    origin: true, // temporary allow all origins (for testing)
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -40,19 +25,14 @@ app.use(
 );
 app.options("*", cors());
 
-/* ✅ Static */
+/* Static */
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-/* ✅ Health */
-app.get("/", async (req, res) => {
-  res.json({
-    message: "Job Portal Backend is LIVE! 🚀",
-    ok: true,
-    time: new Date().toISOString(),
-  });
+/* Routes */
+app.get("/", (req, res) => {
+  res.json({ ok: true, message: "Backend running", time: new Date().toISOString() });
 });
 
-/* ✅ Routes */
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/jobs", require("./routes/jobs"));
 app.use("/api/applications", require("./routes/applications"));
@@ -62,13 +42,10 @@ app.use("/api/cv", require("./routes/cvRoutes"));
 app.use("/api/company", require("./routes/company"));
 app.use("/api/notifications", require("./routes/notifications"));
 
-/* ✅ Error handler */
 app.use(errorHandler);
 
-/* ✅ Connect DB once per cold start (serverless safe) */
-connectDB()
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection failed:", err));
+/* ✅ Connect DB (don’t crash serverless) */
+connectDB().catch((err) => console.error("MongoDB connection failed:", err));
 
-/* ✅ IMPORTANT: Vercel serverless => do NOT app.listen() */
+/* ✅ IMPORTANT: no app.listen() on Vercel */
 module.exports = app;
