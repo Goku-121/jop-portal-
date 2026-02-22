@@ -14,16 +14,16 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* ✅ CORS (Vercel-safe) */
+/* ✅ CORS (Vercel-safe, JWT header based) */
 const corsOptions = {
-  origin: true, // allow all for now (you can restrict later)
-  credentials: true,
+  origin: true, // temporary allow all origins
+  credentials: false, // ✅ IMPORTANT: you are NOT using cookies, only Authorization header
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
-app.options(/.*/, cors(corsOptions)); // ✅ FIX: don't use "*" (crashes on Vercel)
+app.options(/.*/, cors(corsOptions)); // ✅ FIX: don't use "*"
 
 /* Static */
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
