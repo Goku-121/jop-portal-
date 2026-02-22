@@ -9,6 +9,7 @@ export default function JobList() {
 
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [showFilters, setShowFilters] = useState(false);
   const [q, setQ] = useState("");
@@ -22,18 +23,20 @@ export default function JobList() {
   const fetchJobs = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const { data } = await api.get("/jobs", {
         params: { q, location, page, limit },
       });
 
-      console.log("JobList - Full API Response:", data); // ডিবাগ
-      console.log("JobList - Items:", data.items); // ডিবাগ
+      console.log("JobList - Full API Response:", data);
+      console.log("JobList - Items:", data.items);
 
       setJobs(data.items || []);
       setTotalPages(data.totalPages || 1);
       setTotal(data.total || 0);
     } catch (err) {
       console.error("JobList - Fetch error:", err.message, err.response?.data);
+      setError(err.message || "Failed to load jobs");
       setJobs([]);
       setTotalPages(1);
       setTotal(0);
@@ -55,8 +58,18 @@ export default function JobList() {
     setLocation("");
   };
 
+  if (error) {
+    return (
+      <div className="container mt-5 text-center text-danger">
+        <h4>Error: {error}</h4>
+        <p>Please check your connection or try again later.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container mt-4">
+      {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h4 className="mb-1 fw-bold">Jobs</h4>
@@ -65,6 +78,7 @@ export default function JobList() {
           </small>
         </div>
 
+        {/* Filter button */}
         <div className="d-flex align-items-center gap-2">
           <button
             className={`btn btn-outline-primary btn-icon-filter position-relative ${showFilters ? "active" : ""}`}
@@ -81,6 +95,7 @@ export default function JobList() {
         </div>
       </div>
 
+      {/* Filter section */}
       {showFilters && (
         <div className="card filter-card mb-4 shadow-sm">
           <div className="card-body">
@@ -104,13 +119,18 @@ export default function JobList() {
                 />
               </div>
             </div>
-            <button className="btn btn-outline-secondary mt-3 px-4" onClick={handleResetFilters}>
+
+            <button
+              className="btn btn-outline-secondary mt-3 px-4"
+              onClick={handleResetFilters}
+            >
               Reset Filters
             </button>
           </div>
         </div>
       )}
 
+      {/* Loading */}
       {loading && (
         <div className="text-center my-5 py-5">
           <div className="spinner-border text-primary" role="status"></div>
@@ -118,23 +138,27 @@ export default function JobList() {
         </div>
       )}
 
+      {/* No jobs */}
       {!loading && jobs.length === 0 && (
         <div className="alert alert-info text-center my-5 py-4">
           No jobs found matching your criteria.
         </div>
       )}
 
+      {/* Job list */}
       {!loading && jobs.length > 0 && (
         <div className="job-list-grid">
           {jobs.map((job) => (
             <div key={job._id} className="card job-card mb-3 shadow-sm">
               <div className="card-body">
                 <h5 className="card-title mb-2 fw-semibold">{job.title || "No Title"}</h5>
+
                 <div className="job-meta text-muted mb-3 d-flex flex-wrap gap-3">
                   <span>📍 {job.location || "Not specified"}</span>
                   <span>•</span>
                   <span>💰 {job.salary || "Negotiable"}</span>
                 </div>
+
                 <p className="card-text text-secondary mb-3">
                   {(job.description || "").slice(0, 160)}
                   {(job.description || "").length > 160 ? "..." : ""}
@@ -155,6 +179,7 @@ export default function JobList() {
         </div>
       )}
 
+      {/* Pagination */}
       {!loading && totalPages > 1 && (
         <div className="pagination-wrapper d-flex justify-content-between align-items-center mt-5 mb-5">
           <button
@@ -162,12 +187,11 @@ export default function JobList() {
             disabled={page <= 1}
             onClick={() => setPage((p) => Math.max(1, p - 1))}
           >
-            <i className="bi bi-chevron-left me-1"></i> Prev
+            Prev
           </button>
 
           <span className="page-info text-muted">
-            Page <strong className="text-dark">{page}</strong> of{" "}
-            <strong className="text-dark">{totalPages}</strong>
+            Page <strong>{page}</strong> of <strong>{totalPages}</strong>
           </span>
 
           <button
@@ -175,15 +199,10 @@ export default function JobList() {
             disabled={page >= totalPages}
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
           >
-            Next <i className="bi bi-chevron-right ms-1"></i>
+            Next
           </button>
         </div>
       )}
-
-      
-      <pre style={{ background: "#f8f9fa", padding: "15px", borderRadius: "8px", marginTop: "30px" }}>
-        {JSON.stringify({ jobsCount: jobs.length, total, totalPages, currentPage: page }, null, 2)}
-      </pre>
     </div>
   );
 }

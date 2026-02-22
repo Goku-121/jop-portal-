@@ -5,18 +5,25 @@ import { Link } from "react-router-dom";
 export default function Home() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchJobs = async () => {
       try {
+        setLoading(true);
+        setError(null);
         const { data } = await api.get("/jobs", { params: { limit: 6, page: 1 } });
-        console.log("Home - API Full Response:", data); 
-        console.log("Home - Items received:", data.items); 
-
-        const jobList = data.items || [];
-        setJobs(jobList);
+        console.log("Home - Full API Response:", data);
+        console.log("Home - Items:", data.items);
+        setJobs(data.items || []);
       } catch (err) {
-        console.error("Home - Fetch error:", err.message, err.response?.data);
+        console.error("Home - Fetch error details:", {
+          message: err.message,
+          status: err.response?.status,
+          data: err.response?.data,
+          url: err.config?.url,
+        });
+        setError(err.message || "Failed to load jobs");
         setJobs([]);
       } finally {
         setLoading(false);
@@ -24,6 +31,24 @@ export default function Home() {
     };
     fetchJobs();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="container page-wrap text-center mt-5">
+        <div className="spinner-border text-primary" role="status"></div>
+        <p className="mt-3">Loading latest jobs...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container page-wrap text-center mt-5 text-danger">
+        <h4>Error: {error}</h4>
+        <p>Please check your connection or try again later.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container page-wrap">
@@ -40,12 +65,7 @@ export default function Home() {
         <i className="fa-solid fa-bolt me-2 text-primary"></i>Latest Jobs
       </h3>
 
-      {loading ? (
-        <div className="card card-pro p-4 text-center">
-          <div className="spinner-border text-primary" role="status"></div>
-          <p className="mt-3 text-muted2 mb-0">Loading jobs...</p>
-        </div>
-      ) : jobs.length === 0 ? (
+      {jobs.length === 0 ? (
         <div className="card card-pro p-4 text-center">
           <p className="mb-0 text-muted2">No jobs posted yet.</p>
         </div>
@@ -81,8 +101,8 @@ export default function Home() {
       )}
 
       
-      <pre style={{ background: "#f8f9fa", padding: "10px", borderRadius: "8px" }}>
-        {JSON.stringify(jobs, null, 2)}
+      <pre style={{ background: "#f8f9fa", padding: "15px", borderRadius: "8px", marginTop: "30px" }}>
+        {JSON.stringify({ jobsLoaded: jobs.length, sampleJob: jobs[0] || "No data" }, null, 2)}
       </pre>
     </div>
   );
