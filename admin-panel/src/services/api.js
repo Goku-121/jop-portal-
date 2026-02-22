@@ -1,21 +1,18 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // e.g. https://jop-portal-gbmo.vercel.app/api
-  withCredentials: true,
+  baseURL: import.meta.env.VITE_API_URL,
+  // ❌ withCredentials remove
 });
 
 API.interceptors.request.use((config) => {
-  try {
-    const raw = localStorage.getItem("user");
-    if (raw) {
-      const token = JSON.parse(raw)?.token;
-      if (token) config.headers.Authorization = `Bearer ${token}`;
+  const raw = localStorage.getItem("user");
+  if (raw) {
+    const token = JSON.parse(raw)?.token;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-  } catch (err) {
-    console.error("Failed to read token from localStorage:", err);
   }
-
   return config;
 });
 
