@@ -6,40 +6,53 @@ const connectDB = require("./config/db");
 const { errorHandler } = require("./middleware/errorMiddleware");
 
 dotenv.config();
-connectDB();
+
+// Log environment variables for debugging (remove sensitive info in production)
+console.log("MONGO_URI:", process.env.MONGO_URI ? "Set" : "Not set");
+console.log("JWT_SECRET:", process.env.JWT_SECRET ? "Set" : "Not set");
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL || "Not set");
+
+connectDB().catch((err) => {
+  console.error("MongoDB connection failed:", err.message);
+  process.exit(1); // Exit if DB connection fails
+});
 
 const app = express();
 
-// Enable CORS for allowed origins (local dev and live frontend)
+// CORS configuration - allow your frontend, local dev, and temporarily all origins
 app.use(
   cors({
     origin: [
       "http://localhost:5173",          // Local Vite dev server
-      "http://localhost:5174",          // Alternative local port if used
-      "http://localhost:3000",          // Common local frontend port
-      "https://jop-portal-8ibjnntp7-shuvos-projects-cf52e1e3.vercel.app",  // Live frontend URL
-      "*"                               // Allow all origins temporarily (remove in production for security)
+      "http://localhost:5174",          // Alternative local port
+      "http://localhost:3000",          // Other local frontend ports
+      "https://jop-portal-8ibjnntp7-shuvos-projects-cf52e1e3.vercel.app",  // Your live frontend URL
+      "*"                               // Allow all for testing (remove in production)
     ],
-    credentials: true,                  // Allow cookies/credentials
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],  // Allowed HTTP methods
-    allowedHeaders: ["Content-Type", "Authorization"]      // Allowed request headers
+    credentials: true,                  // Allow cookies, auth headers
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],  // All needed methods
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: ["Content-Length", "X-Content-Type-Options"],
+    optionsSuccessStatus: 204           // For legacy browsers
   })
 );
 
-// Handle OPTIONS preflight requests explicitly (this fixes 500 error on OPTIONS requests)
+// Handle OPTIONS preflight requests explicitly (fixes 500 on OPTIONS)
 app.options("*", cors());
 
+// Parse JSON bodies
 app.use(express.json());
 
-// Serve static files from uploads folder
+// Serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Root route - simple health check / welcome message
-app.get('/', (req, res) => {
+// Root route - health check / welcome
+app.get("/", (req, res) => {
   res.json({
     message: "Job Portal Backend is LIVE! 🚀",
     status: "running",
-    version: "1.0.0"
+    version: "1.0.0",
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -53,8 +66,12 @@ app.use("/api/cv", require("./routes/cvRoutes"));
 app.use("/api/company", require("./routes/company"));
 app.use("/api/notifications", require("./routes/notifications"));
 
-// Global error handler middleware
+// Global error handler - must be last
 app.use(errorHandler);
 
+// Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+});
