@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../services/api";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../store/authSlice";
@@ -10,19 +10,11 @@ export default function WorkerProfile() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [existingCV, setExistingCV] = useState(null);
+
   const [loading, setLoading] = useState(false);
-
-  const [apps, setApps] = useState([]);
   const [cvUploading, setCvUploading] = useState(false);
+  const [apps, setApps] = useState([]);
 
-  // ✅ API origin auto detect (localhost remove)
-  // VITE_API_URL example: https://xxx.vercel.app/api
-  const API_ORIGIN = useMemo(() => {
-    const base = import.meta.env.VITE_API_URL || "https://jop-portal-gbmo.vercel.app/api";
-    return base.replace(/\/api\/?$/, "");
-  }, []);
-
-  // ✅ initial set + fetch existing CV
   useEffect(() => {
     if (!user) return;
 
@@ -35,7 +27,6 @@ export default function WorkerProfile() {
       .catch(() => setExistingCV(null));
   }, [user]);
 
-  // ✅ fetch my applications
   useEffect(() => {
     if (!user) return;
 
@@ -45,16 +36,12 @@ export default function WorkerProfile() {
       .catch(() => setApps([]));
   }, [user]);
 
-  // ✅ update profile
   const handleUpdate = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const { data } = await api.put("/users/me", { name, email });
-
-      // keep token/role from old user
       dispatch(setUser({ ...user, ...data }));
-
       alert("Profile updated successfully!");
     } catch (err) {
       alert(err.response?.data?.message || "Profile update failed");
@@ -63,17 +50,16 @@ export default function WorkerProfile() {
     }
   };
 
-  // ✅ upload CV (FormData)
   const handleCVUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Optional validation
     const allowed = [
       "application/pdf",
       "application/msword",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ];
+
     if (!allowed.includes(file.type)) {
       alert("Only PDF/DOC/DOCX allowed!");
       e.target.value = "";
@@ -85,17 +71,14 @@ export default function WorkerProfile() {
 
     try {
       setCvUploading(true);
-
-      // ✅ IMPORTANT: don't set Content-Type manually
       const { data } = await api.post("/cv", formData);
-
       setExistingCV(data?.cvUrl || null);
       alert("CV uploaded successfully!");
     } catch (err) {
       alert(err.response?.data?.message || "CV upload failed");
     } finally {
       setCvUploading(false);
-      e.target.value = ""; // reset input
+      e.target.value = "";
     }
   };
 
@@ -145,7 +128,7 @@ export default function WorkerProfile() {
 
       {existingCV && (
         <a
-          href={`${API_ORIGIN}${existingCV}`}
+          href={existingCV} // ✅ Cloudinary full URL
           target="_blank"
           rel="noreferrer"
           className="btn btn-sm btn-secondary"

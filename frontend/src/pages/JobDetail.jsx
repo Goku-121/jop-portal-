@@ -67,9 +67,9 @@ export default function JobDetail() {
 
       const formData = new FormData();
       formData.append("jobId", job._id);
-      formData.append("cv", cvFile); // ✅ backend expects field name "cv"
+      formData.append("cv", cvFile);
 
-      // ✅ IMPORTANT: DO NOT set Content-Type manually (Axios will set boundary)
+      // Don't set Content-Type manually
       await api.post("/applications", formData);
 
       alert("✅ Applied successfully!");
@@ -124,11 +124,7 @@ export default function JobDetail() {
                 onChange={(e) => setCvFile(e.target.files?.[0] || null)}
               />
 
-              <button
-                className="btn btn-pro"
-                onClick={handleApply}
-                disabled={applyLoading}
-              >
+              <button className="btn btn-pro" onClick={handleApply} disabled={applyLoading}>
                 <i className="fa-solid fa-paper-plane me-2"></i>
                 {applyLoading ? "Applying..." : "Apply Now"}
               </button>
