@@ -10,9 +10,14 @@ export default function Home() {
     const fetchJobs = async () => {
       try {
         const { data } = await api.get("/jobs", { params: { limit: 6, page: 1 } });
-        setJobs(data.items || []);
+        console.log("Home - API Full Response:", data); 
+        console.log("Home - Items received:", data.items); 
+
+        const jobList = data.items || [];
+        setJobs(jobList);
       } catch (err) {
-        console.log(err);
+        console.error("Home - Fetch error:", err.message, err.response?.data);
+        setJobs([]);
       } finally {
         setLoading(false);
       }
@@ -50,7 +55,7 @@ export default function Home() {
             <div key={job._id} className="col-md-4 mb-4">
               <div className="card job-card-pro h-100">
                 <div className="card-body">
-                  <h5 className="card-title fw-bold">{job.title}</h5>
+                  <h5 className="card-title fw-bold">{job.title || "Untitled Job"}</h5>
                   <p className="text-muted2 mb-3">
                     {(job.description || "").slice(0, 100)}
                     {(job.description || "").length > 100 ? "..." : ""}
@@ -62,7 +67,7 @@ export default function Home() {
                   </p>
                   <p className="mb-3">
                     <i className="fa-solid fa-sack-dollar me-2 text-primary"></i>
-                    <strong>Salary:</strong> {job.salary || "N/A"}
+                    <strong>Salary:</strong> {job.salary || "Negotiable"}
                   </p>
 
                   <Link to={`/jobs/${job._id}`} className="btn btn-pro w-100">
@@ -74,6 +79,11 @@ export default function Home() {
           ))}
         </div>
       )}
+
+      
+      <pre style={{ background: "#f8f9fa", padding: "10px", borderRadius: "8px" }}>
+        {JSON.stringify(jobs, null, 2)}
+      </pre>
     </div>
   );
 }
