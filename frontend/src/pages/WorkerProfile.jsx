@@ -15,6 +15,19 @@ export default function WorkerProfile() {
   const [cvUploading, setCvUploading] = useState(false);
   const [apps, setApps] = useState([]);
 
+  // ✅ Try to force inline view on Cloudinary (best-effort)
+  const getInlineViewUrl = (url) => {
+    if (!url) return url;
+
+    // Only transform Cloudinary URLs (avoid breaking other URLs)
+    // Adds: fl_attachment:false => tries to open in browser instead of force download
+    if (url.includes("res.cloudinary.com") && url.includes("/upload/")) {
+      return url.replace("/upload/", "/upload/fl_attachment:false/");
+    }
+
+    return url;
+  };
+
   useEffect(() => {
     if (!user) return;
 
@@ -127,14 +140,25 @@ export default function WorkerProfile() {
       {cvUploading && <p className="text-muted">Uploading CV...</p>}
 
       {existingCV && (
-        <a
-          href={existingCV}
-          target="_blank"
-          rel="noreferrer"
-          className="btn btn-sm btn-secondary"
-        >
-          View CV
-        </a>
+        <div className="d-flex gap-2 align-items-center mt-2">
+          <a
+            href={getInlineViewUrl(existingCV)}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btn-sm btn-secondary"
+          >
+            View CV
+          </a>
+
+          <a
+            href={existingCV}
+            className="btn btn-sm btn-primary"
+          >
+            Download CV
+          </a>
+
+          <span className="text-muted small">CV uploaded ✅</span>
+        </div>
       )}
 
       <hr />
