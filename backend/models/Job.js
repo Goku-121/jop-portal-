@@ -6,6 +6,9 @@ const jobSchema = new mongoose.Schema(
     description: String,
     location: String,
     salary: String,
+
+    imageUrl: { type: String, default: "" }, 
+
     postedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

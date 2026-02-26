@@ -209,3 +209,86 @@ body {
 @media (max-width: 576px) {
   .hero-pro .btn-light { padding: 0.8rem 1.8rem; font-size: 1rem; }
 }
+
+
+.page-wrap { padding-bottom: 30px; }
+
+.hero-carousel {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.hero-slide {
+  min-height: 360px;        /* fixed height */
+  display: flex;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  padding: 60px 0;          /* top-bottom spacing */
+}
+
+.hero-slide .container {
+  max-width: 1140px;        /* prevent overflow */
+}
+
+.hero-slide h1 {
+  line-height: 1.2;
+}
+
+.carousel-item {
+  overflow: hidden;         /* prevent text overflow */
+}
+
+.stat-icon{
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  border-radius: 12px;
+  background: rgba(37,99,235,.12);
+  color: #2563eb;
+}
+
+.job-card { border-radius: 14px; overflow: hidden; }
+.job-img {
+  height: 180px;
+  object-fit: cover;
+}
+.job-desc{
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 40px;
+}
+
+.cta-box{
+  background: linear-gradient(135deg,#2563eb,#4f46e5);
+}
+
+.footer-pro{
+  background: #0b1220;
+  color: #cbd5e1;
+}
+
+.footer-social .social-link{
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #cbd5e1;
+  border: 1px solid rgba(255,255,255,.15);
+  transition: transform .15s ease, background .15s ease, color .15s ease;
+}
+
+.footer-social .social-link:hover{
+  transform: translateY(-2px);
+  background: rgba(37,99,235,.18);
+  color: #fff;
+  border-color: rgba(37,99,235,.35);
+}
+
+.footer-social i{
+  font-size: 18px;
+}
