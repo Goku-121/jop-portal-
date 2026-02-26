@@ -2,12 +2,13 @@ const mongoose = require("mongoose");
 
 const jobSchema = new mongoose.Schema(
   {
-    title: String,
-    description: String,
-    location: String,
-    salary: String,
+    title: { type: String, trim: true },
+    description: { type: String, trim: true },
+    location: { type: String, trim: true },
+    salary: { type: String, trim: true },
 
-    imageUrl: { type: String, default: "" }, 
+    
+    imageUrl: { type: String, default: "" },
 
     postedBy: {
       type: mongoose.Schema.Types.ObjectId,

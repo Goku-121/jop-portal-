@@ -3,6 +3,8 @@ import api from "../services/api";
 import { Link } from "react-router-dom";
 import "../css/Jobs.css";
 
+const FALLBACK_IMG = "https://picsum.photos/seed/kaajkormo/800/520";
+
 export default function Jobs() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,11 +16,7 @@ export default function Jobs() {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-
-        // ✅ If your API returns {items: []} use that
-        // ✅ If your API returns [] directly, fallback to data
         const { data } = await api.get("/jobs", { params: { limit: 30, page: 1 } });
-
         const items = Array.isArray(data) ? data : (data.items || []);
         setJobs(items);
       } catch (err) {
@@ -51,7 +49,7 @@ export default function Jobs() {
 
   return (
     <div className="container my-4">
-      {/* ✅ Page Hero */}
+      {/* Page Hero */}
       <div className="jobs-hero mb-4">
         <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
           <div>
@@ -70,7 +68,7 @@ export default function Jobs() {
           </div>
         </div>
 
-        {/* ✅ Search / Filter */}
+        {/* Search / Filter */}
         <div className="row g-2 mt-3">
           <div className="col-12 col-md-8">
             <div className="input-group">
@@ -87,11 +85,7 @@ export default function Jobs() {
           </div>
 
           <div className="col-12 col-md-4">
-            <select
-              className="form-select"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            >
+            <select className="form-select" value={location} onChange={(e) => setLocation(e.target.value)}>
               {locations.map((loc) => (
                 <option key={loc} value={loc}>
                   {loc === "all" ? "All Locations" : loc}
@@ -102,7 +96,7 @@ export default function Jobs() {
         </div>
       </div>
 
-      {/* ✅ Title row */}
+      {/* Title row */}
       <div className="d-flex align-items-center justify-content-between mb-3">
         <h4 className="m-0 fw-bold">
           <i className="fa-solid fa-bolt me-2 text-primary"></i>
@@ -113,7 +107,7 @@ export default function Jobs() {
         </div>
       </div>
 
-      {/* ✅ Content */}
+      {/* Content */}
       {loading ? (
         <div className="text-center py-5">Loading jobs...</div>
       ) : filtered.length === 0 ? (
@@ -124,10 +118,11 @@ export default function Jobs() {
             <div className="col-12 col-md-6 col-lg-4" key={job._id}>
               <div className="card h-100 shadow-sm job-card">
                 <img
-                  src={job.imageUrl || "/images/jobs/default.jpg"}
+                  src={job.imageUrl || FALLBACK_IMG}
                   className="card-img-top job-img"
                   alt={job.title}
                   loading="lazy"
+                  onError={(e) => (e.currentTarget.src = FALLBACK_IMG)}
                 />
 
                 <div className="card-body d-flex flex-column">
@@ -158,7 +153,7 @@ export default function Jobs() {
         </div>
       )}
 
-      {/* ✅ Extra section: How to apply */}
+      {/* How to apply */}
       <section className="my-5">
         <div className="p-4 p-md-5 border rounded-4 shadow-sm">
           <h4 className="fw-bold mb-2">How to Apply</h4>

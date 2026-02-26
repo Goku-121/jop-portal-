@@ -292,3 +292,9 @@ body {
 .footer-social i{
   font-size: 18px;
 }
+
+.job-img{
+  height: 180px;
+  object-fit: cover;
+  background: #f1f5f9;
+}

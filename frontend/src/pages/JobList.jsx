@@ -4,6 +4,8 @@ import { useSelector } from "react-redux";
 import "../css/JobList.css";
 import { Link } from "react-router-dom";
 
+const FALLBACK_IMG = "https://picsum.photos/seed/kaajkormo/800/520";
+
 export default function JobList() {
   const user = useSelector((s) => s.auth.user);
 
@@ -14,7 +16,6 @@ export default function JobList() {
   const [q, setQ] = useState("");
   const [location, setLocation] = useState("");
 
-  // Pagination states
   const [page, setPage] = useState(1);
   const [limit] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
@@ -45,7 +46,6 @@ export default function JobList() {
     fetchJobs();
   }, [fetchJobs]);
 
-  // Reset page to 1 when filters change
   useEffect(() => {
     setPage(1);
   }, [q, location]);
@@ -57,7 +57,7 @@ export default function JobList() {
 
   return (
     <div className="container mt-4">
-      {/* Header with title and filter controls */}
+      {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h4 className="mb-1 fw-bold">Jobs</h4>
@@ -67,17 +67,13 @@ export default function JobList() {
         </div>
 
         <div className="d-flex align-items-center gap-2">
-          {/* Filter button - modern professional style with SEARCH icon */}
           <button
             className={`btn btn-outline-primary btn-icon-filter position-relative ${showFilters ? "active" : ""}`}
             onClick={() => setShowFilters((prev) => !prev)}
             title={showFilters ? "Close filters" : "Open filters & search"}
-            data-bs-toggle="tooltip"
-            data-bs-placement="top"
           >
             <i className="fa-solid fa-magnifying-glass"></i>
 
-            {/* Badge showing if filters are active */}
             {(q || location) && (
               <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                 {q && location ? "2" : "1"}
@@ -87,7 +83,7 @@ export default function JobList() {
         </div>
       </div>
 
-      {/* Filter section */}
+      {/* Filters */}
       {showFilters && (
         <div className="card filter-card mb-4 shadow-sm">
           <div className="card-body">
@@ -98,7 +94,7 @@ export default function JobList() {
                   className="form-control"
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
-                  placeholder="e.g. Driver, Electrician, Web Developer..."
+                  placeholder="e.g. Driver, Electrician..."
                 />
               </div>
 
@@ -108,22 +104,19 @@ export default function JobList() {
                   className="form-control"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="e.g. Dhaka, Chittagong, Gulshan, Remote..."
+                  placeholder="e.g. Dhaka, Chittagong..."
                 />
               </div>
             </div>
 
-            <button
-              className="btn btn-outline-secondary mt-3 px-4"
-              onClick={handleResetFilters}
-            >
+            <button className="btn btn-outline-secondary mt-3 px-4" onClick={handleResetFilters}>
               Reset Filters
             </button>
           </div>
         </div>
       )}
 
-      {/* Loading state */}
+      {/* Loading */}
       {loading && (
         <div className="text-center my-5 py-5">
           <div className="spinner-border text-primary" role="status">
@@ -133,41 +126,50 @@ export default function JobList() {
         </div>
       )}
 
-      {/* No jobs found */}
+      {/* Empty */}
       {!loading && jobs.length === 0 && (
         <div className="alert alert-info text-center my-5 py-4">
           No jobs found matching your criteria.
         </div>
       )}
 
-      {/* Job list - grid wrapper added for better styling */}
+      {/* Grid with Images */}
       {!loading && jobs.length > 0 && (
-        <div className="job-list-grid">
+        <div className="row g-4">
           {jobs.map((job) => (
-            <div key={job._id} className="card job-card mb-3 shadow-sm">
-              <div className="card-body">
-                <h5 className="card-title mb-2 fw-semibold">{job.title}</h5>
+            <div key={job._id} className="col-12 col-md-6 col-lg-4">
+              <div className="card h-100 shadow-sm job-card">
+                <img
+                  src={job.imageUrl || FALLBACK_IMG}
+                  className="card-img-top job-img"
+                  alt={job.title}
+                  loading="lazy"
+                  onError={(e) => (e.currentTarget.src = FALLBACK_IMG)}
+                />
 
-                <div className="job-meta text-muted mb-3 d-flex flex-wrap gap-3">
-                  <span>📍 {job.location || "Not specified"}</span>
-                  <span>•</span>
-                  <span>💰 {job.salary || "Negotiable"}</span>
+                <div className="card-body d-flex flex-column">
+                  <h5 className="card-title mb-2 fw-semibold text-truncate">{job.title}</h5>
+
+                  <div className="job-meta text-muted mb-3 d-flex flex-wrap gap-3 small">
+                    <span>📍 {job.location || "Not specified"}</span>
+                    <span>💰 {job.salary || "Negotiable"}</span>
+                  </div>
+
+                  <p className="card-text text-secondary mb-3">
+                    {(job.description || "").slice(0, 140)}
+                    {(job.description || "").length > 140 ? "..." : ""}
+                  </p>
+
+                  {user?.role === "worker" ? (
+                    <Link to={`/jobs/${job._id}`} className="btn btn-primary w-100 mt-auto">
+                      Apply Now
+                    </Link>
+                  ) : (
+                    <Link to="/login" className="btn btn-outline-secondary w-100 mt-auto">
+                      Login to Apply
+                    </Link>
+                  )}
                 </div>
-
-                <p className="card-text text-secondary mb-3">
-                  {(job.description || "").slice(0, 160)}
-                  {(job.description || "").length > 160 ? "..." : ""}
-                </p>
-
-                {user?.role === "worker" ? (
-                  <Link to={`/jobs/${job._id}`} className="btn btn-primary btn-sm px-4">
-                    Apply Now
-                  </Link>
-                ) : (
-                  <Link to="/login" className="btn btn-outline-secondary btn-sm px-4">
-                    Login to Apply
-                  </Link>
-                )}
               </div>
             </div>
           ))}

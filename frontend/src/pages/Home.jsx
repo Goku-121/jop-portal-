@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import api from "../services/api";
 import { Link } from "react-router-dom";
 
+const FALLBACK_IMG = "https://picsum.photos/seed/kaajkormo/800/520";
+
 export default function Home() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +51,7 @@ export default function Home() {
 
   return (
     <div className="page-wrap">
-      {/* ✅ HERO SLIDER */}
+      {/* HERO SLIDER */}
       <section className="container my-4">
         <div
           id="homeHero"
@@ -107,7 +109,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ✅ QUICK STATS */}
+      {/* QUICK STATS */}
       <section className="container my-4">
         <div className="row g-3">
           {[
@@ -132,7 +134,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ✅ LATEST JOBS */}
+      {/* LATEST JOBS */}
       <section className="container my-5">
         <div className="d-flex align-items-center justify-content-between mb-3">
           <h3 className="m-0 fw-bold">
@@ -153,11 +155,13 @@ export default function Home() {
               <div key={job._id} className="col-12 col-md-6 col-lg-4">
                 <div className="card h-100 shadow-sm job-card">
                   <img
-                    src={job.imageUrl || "/images/jobs/default.jpg"}
+                    src={job.imageUrl || FALLBACK_IMG}
                     className="card-img-top job-img"
                     alt={job.title}
                     loading="lazy"
+                    onError={(e) => (e.currentTarget.src = FALLBACK_IMG)}
                   />
+
                   <div className="card-body d-flex flex-column">
                     <h5 className="fw-semibold mb-1 text-truncate">{job.title || "Untitled Job"}</h5>
 
@@ -187,7 +191,7 @@ export default function Home() {
         )}
       </section>
 
-      {/* ✅ HOW IT WORKS */}
+      {/* HOW IT WORKS */}
       <section className="container my-5">
         <h4 className="fw-bold mb-3">How it works</h4>
         <div className="row g-4">
@@ -209,7 +213,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ✅ CTA */}
+      {/* CTA */}
       <section className="container my-5">
         <div className="cta-box p-5 rounded-4 text-white shadow-sm">
           <div className="row align-items-center g-3">
@@ -224,8 +228,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-    
     </div>
   );
 }

@@ -7,8 +7,20 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-const locations = ["Dhaka", "Chittagong", "Sylhet", "Khulna", "Rajshahi", "Barishal", "Mymensingh", "Comilla", "Cox's Bazar"];
+// Locations in Bangladesh
+const locations = [
+  "Dhaka",
+  "Chittagong",
+  "Sylhet",
+  "Khulna",
+  "Rajshahi",
+  "Barishal",
+  "Mymensingh",
+  "Comilla",
+  "Cox's Bazar",
+];
 
+// Service / Trade jobs
 const jobTitles = [
   "Plumber",
   "Electrician",
@@ -27,25 +39,32 @@ const jobTitles = [
   "Delivery Person",
 ];
 
-const imageMap = {
-  Plumber: "https://source.unsplash.com/900x600/?plumber,tools",
-  Electrician: "https://source.unsplash.com/900x600/?electrician,electrical",
-  Driver: "https://source.unsplash.com/900x600/?driver,car",
-  Cleaner: "https://source.unsplash.com/900x600/?cleaning,housekeeping",
-  Carpenter: "https://source.unsplash.com/900x600/?carpenter,woodworking",
-  Painter: "https://source.unsplash.com/900x600/?painter,painting",
-  Mechanic: "https://source.unsplash.com/900x600/?mechanic,garage",
-  Gardener: "https://source.unsplash.com/900x600/?gardener,garden",
-  Welder: "https://source.unsplash.com/900x600/?welder,welding",
-  "Construction Laborer": "https://source.unsplash.com/900x600/?construction,worker",
-  "HVAC Technician": "https://source.unsplash.com/900x600/?hvac,technician",
-  "Pest Control Specialist": "https://source.unsplash.com/900x600/?pest,control",
-  "Laundry Worker": "https://source.unsplash.com/900x600/?laundry,clean",
-  "Security Guard": "https://source.unsplash.com/900x600/?security,guard",
-  "Delivery Person": "https://source.unsplash.com/900x600/?delivery,courier",
+// ✅ Category keywords for image search
+const imgKeywordMap = {
+  Plumber: "plumber,tools",
+  Electrician: "electrician,electrical",
+  Driver: "driver,car",
+  Cleaner: "cleaning,janitor",
+  Carpenter: "carpenter,woodwork",
+  Painter: "painter,painting",
+  Mechanic: "mechanic,workshop",
+  Gardener: "gardener,garden",
+  Welder: "welder,welding",
+  "Construction Laborer": "construction,worker",
+  "HVAC Technician": "hvac,air-conditioner",
+  "Pest Control Specialist": "pest-control,spraying",
+  "Laundry Worker": "laundry,washing",
+  "Security Guard": "security,guard",
+  "Delivery Person": "delivery,courier",
 };
 
-const companies = [];
+function buildImageUrl(jobBaseTitle, uniqueSeed) {
+  // ✅ per job unique image (no cache issue)
+  return `https://picsum.photos/seed/${encodeURIComponent(jobBaseTitle + "-" + uniqueSeed)}/800/520`;
+}
+
+// Optional companies/users for assignment
+const companies = []; // put company IDs if you want
 
 async function seedJobs() {
   try {
@@ -57,13 +76,17 @@ async function seedJobs() {
     for (let i = 0; i < 10000; i++) {
       const baseTitle = jobTitles[Math.floor(Math.random() * jobTitles.length)];
       const title = `${baseTitle} #${i + 1}`;
+
       const description = `We are looking for a skilled ${baseTitle} in your area. Excellent opportunity with competitive salary.`;
       const location = locations[Math.floor(Math.random() * locations.length)];
       const salary = `${Math.floor(Math.random() * 30000 + 8000)} BDT`;
 
-      const postedBy = companies.length ? companies[Math.floor(Math.random() * companies.length)] : undefined;
+      const postedBy =
+        companies.length > 0
+          ? companies[Math.floor(Math.random() * companies.length)]
+          : undefined;
 
-      const imageUrl = imageMap[baseTitle] || "https://source.unsplash.com/900x600/?job,work";
+      const imageUrl = buildImageUrl(baseTitle, i + 1);
 
       batch.push({ title, description, location, salary, postedBy, imageUrl });
 
@@ -74,9 +97,12 @@ async function seedJobs() {
       }
     }
 
-    if (batch.length) await Job.insertMany(batch);
+    if (batch.length > 0) {
+      await Job.insertMany(batch);
+      console.log("Remaining jobs inserted.");
+    }
 
-    console.log("✅ 10,000 jobs inserted successfully with internet images!");
+    console.log(" 10,000 jobs inserted with imageUrl successfully!");
     process.exit();
   } catch (err) {
     console.error(err);
